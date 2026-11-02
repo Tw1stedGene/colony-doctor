@@ -7,31 +7,39 @@ Players don't need any of this; see the [README](README.md).
 ## Architecture
 
 ```
- every 250 ticks, per home map                     on demand
-┌───────────────────────────────────┐            ┌──────────────────────────────┐
-│ MapTracker                        │            │ Bottlenecks tab, alerts      │
-│   bills      -> BillDiagnoser     │  history   │   ranked list, timeline,     │
-│   sites      -> ConstructionDiag. │ ─────────► │   breakdown, explanations,   │
-│   modded     -> ProbeScheduler    │ ring buffer│   Jump to                    │
-└───────────────────────────────────┘            └──────────────────────────────┘
+ every 250 ticks, per home map                         on demand
+┌────────────────────────────────────────┐            ┌──────────────────────────────┐
+│ MapTracker: discover, then sample      │            │ Bottlenecks tab, alerts      │
+│   bills, sites, idle colonists,        │  history   │   ranked list, timeline,     │
+│   hauling, growers, orders, patients,  │ ─────────► │   breakdown, explanations,   │
+│   research  -> one diagnoser per kind  │ ring buffer│   fixes with undo, Jump to   │
+└────────────────────────────────────────┘            └──────────────────────────────┘
 ```
 
-- **`Sampling/`** finds the problems to watch on each home map (`MapTracker`), samples them on a
-  fixed interval, and runs rate-limited probes for benches that bypass the vanilla bill work giver
-  (`ProbeScheduler`, with `JobFailReasonGuard` saving and restoring vanilla's static fail reason).
-  Probes are off under the Multiplayer mod.
-- **`Diagnosis/`** decides, for one bill at one moment, whether it is being worked on and, if not,
-  the reason and detail (`BillDiagnoser`). It mirrors the ingredient and worker checks in
-  `WorkGiver_DoBill` rather than parsing localized `JobFailReason` text.
-- **`Construction/`** groups touching blueprints and frames into sites and diagnoses them the same
-  way.
+- **`Sampling/`** finds what to watch on each home map (`MapTracker`) and samples each tracked
+  problem once per 250-tick cycle, spread across ticks. One class per kind (`TrackedBill`,
+  `ConstructionSite`, `TrackedPawn`, `TrackedHaulGroup`, `TrackedGrower`, `TrackedOrderGroup`,
+  `TrackedPatient`, `TrackedResearch`) holds its title, location, Jump to and history. `ProbeScheduler`
+  runs rate-limited probes for benches that bypass the vanilla bill work giver, with
+  `JobFailReasonGuard` saving and restoring vanilla's static fail reason. Probes are off under the
+  Multiplayer mod.
+- **`Diagnosis/`** decides, for one problem at one moment, whether it is being worked on and, if not,
+  the reason and detail. It mirrors vanilla's checks (for example the ingredient and worker checks in
+  `WorkGiver_DoBill`) rather than parsing localized `JobFailReason` text. Shared pieces:
+  `WorkerPool` (who is available for a work type, per cycle), `AreaGate` (allowed areas),
+  `ActivityClassifier` (Outcompeted versus Waiting for a worker), `ReachCache`.
+- **`Construction/`** groups touching blueprints and frames into sites and diagnoses them.
+- **`Fixes/`** builds the one-click fixes for a stored diagnosis (`FixCatalog`). Every change the mod
+  makes goes through `FixActions`, whose methods are `[SyncMethod]` for the Multiplayer mod.
 - **`Core/`** holds the pure, RimWorld-free logic: reasons and their precedence, the per-item history
-  ring buffer, and aggregation over the last hour, day and quadrum. The tests compile these files
-  directly.
-- **`UI/`** is the Bottlenecks main tab, the stalled alerts, reason colours and explanations.
+  ring buffer, aggregation over the last hour, day and quadrum, and fix maths. The tests compile these
+  files directly.
+- **`UI/`** is the Bottlenecks main tab, the alerts, reason colours, explanations and the fix flow
+  (confirm, re-check, apply, Undo, Monitoring).
+- **`Dev/`** holds the debug actions, test scenarios, fix test and the autopilot.
 
-Diagnosis is read-only: it must not change game state, create reservations or call `Rand`. Nothing is
-saved; history rebuilds after a load.
+Diagnosis is read-only: it must not change game state, create reservations or call `Rand`. Only a fix
+the player confirms changes anything. Nothing is saved; history rebuilds after a load.
 
 ## Building and testing
 
@@ -65,13 +73,18 @@ Turn on Development mode, open **Debug actions** and look under **Colony Doctor*
 
 | Action | Effect |
 |---|---|
-| Build test stations | Click a spot on the map: builds one bench and bill per diagnosis scenario, named "T1 …", "T2 …" after the reason it should show. Let about an in-game hour pass, then open Bottlenecks. |
+| Build test stations | Click a spot: builds one bench and bill per bill scenario, named "T1 …", "T2 …" after the reason it should show. |
 | Build construction test sites | Click a spot: builds construction sites for the construction scenarios. |
-| Log bill diagnoses | Writes every tracked bill and construction site, its last reason and detail, and the sampling cost to the log. |
+| Build hauling test | Click a spot: steel and meat walled off where nobody can reach them. |
+| Build fields, orders and research test | Click a spot: an allowed area for everyone, a devilstrand field, a field outside the area, mining outside it, an unarmed hunt, a thrumbo to tame and a research project that needs a hi-tech bench. Removes colonists' ranged weapons. |
+| Build outcompeted test (changes priorities) | A ready stonecutter's bill while everyone ranks Hauling above Crafting and has wood to haul. |
+| Restore work priorities | Undoes the priority changes of the outcompeted test. |
+| Log bill diagnoses | Writes every tracked problem of every kind, its last reason, detail and explanation, and the sampling cost to the log. |
+| Test all fixes (apply + undo) | Applies every offered fix, checks it is no longer needed, undoes it and checks it is needed again. |
 
-The test actions change the map (and, for the work-type scenario, colonists' work settings), so only
-use them on a test colony. In Development mode the Bottlenecks tab also shows the sampling and probe
-cost per map.
+Let about an in-game hour pass after building, then open Bottlenecks. The test actions change the map,
+work settings, allowed areas and the research project, so only use them on a test colony. In
+Development mode the Bottlenecks tab also shows the sampling and probe cost per map.
 
 ### 4. Unattended runs (autopilot)
 
@@ -81,16 +94,35 @@ cost per map.
 | Variable | Effect |
 |---|---|
 | `COLONYDOCTOR_AUTOPILOT=<save>` | Load that save (file name without `.rws`) at startup and run at superfast speed. |
-| `COLONYDOCTOR_AUTOPILOT_TICKS=<n>` | Write "Log bill diagnoses" to the log after `n` ticks (default 2500), then every 2500 ticks. |
+| `COLONYDOCTOR_AUTOPILOT_SETUP=<list>` | Build test scenarios after loading, comma-separated: `outcompeted`, `hauling`, `fields`, `extra` (unpowered hydroponics, forbidden targets, an injured patient on No care), `big` (about 200 bills and 300 loose stacks, with allocation measuring). |
+| `COLONYDOCTOR_AUTOPILOT_TICKS=<n>` | Write the diagnosis dump after `n` ticks (default 2500), then every 2500 ticks. Each dump also logs active alerts and the sampling cost. |
+| `COLONYDOCTOR_AUTOPILOT_FIXTEST=1` | Apply and undo every offered fix after each dump, and test the priority fix as soon as something becomes Outcompeted. |
+| `COLONYDOCTOR_AUTOPILOT_KEEPFIX=1` | Apply one Widen radius fix and keep it (for save and reload checks). |
 | `COLONYDOCTOR_AUTOPILOT_SAVEAS=<name>` | Save the game under that name after the first dump. |
-| `COLONYDOCTOR_AUTOPILOT_QUIT=1` | Quit after the first dump (and save). |
+| `COLONYDOCTOR_AUTOPILOT_QUIT=1` | Quit after `COLONYDOCTOR_AUTOPILOT_DUMPS` dumps (default 1). |
+
+On macOS, start it through `open` so Steam and Workshop mods load (launching the binary directly
+stalls):
 
 ```sh
-COLONYDOCTOR_AUTOPILOT="Test colony" COLONYDOCTOR_AUTOPILOT_QUIT=1 \
-  "/path/to/RimWorld/RimWorldMac.app/Contents/MacOS/RimWorld by Ludeon Studios"
+open -n --env SteamAppId=294100 --env COLONYDOCTOR_AUTOPILOT="Test colony" \
+  --env COLONYDOCTOR_AUTOPILOT_SETUP=hauling,fields --env COLONYDOCTOR_AUTOPILOT_FIXTEST=1 \
+  --env COLONYDOCTOR_AUTOPILOT_QUIT=1 -a "/path/to/RimWorld/RimWorldMac.app"
 ```
 
-Then read the dump in the game's `Player.log`.
+Then read the dump in `Player.log`, which the game writes in full when it quits.
+
+### Multiplayer check
+
+Enable Prepatcher, Multiplayer and Colony Doctor. Host a save from the Multiplayer menu with Direct
+on, then start a second copy with its own data folder and connect it:
+
+```sh
+open -n --env SteamAppId=294100 -a "/path/to/RimWorld/RimWorldMac.app" \
+  --args -savedatafolder=/tmp/mpclient -connect=127.0.0.1:30502
+```
+
+Apply and undo a fix on each side and check the other side changes too, with no desync.
 
 ### Tests
 
@@ -100,7 +132,7 @@ mono Source/ColonyDoctor.Tests/bin/ColonyDoctor.Tests.exe
 ```
 
 The tests cover the pure logic in `Source/ColonyDoctor/Core/` (history, aggregation, reason
-precedence, site matching). They need no RimWorld references and run as a self-executing NUnitLite
+precedence, site matching, Outcompeted, idle and hauling rules, fix maths). They need no RimWorld references and run as a self-executing NUnitLite
 console app, so no .NET SDK is needed.
 
 ## Releasing
@@ -119,6 +151,6 @@ About/                   About.xml, Preview.png, ModIcon.png
 1.6/Assemblies/          build output (ColonyDoctor.dll, git-ignored)
 Defs/                    the Bottlenecks main tab
 Languages/English/       all player-facing text
-Source/ColonyDoctor/     the mod (Core/, Sampling/, Diagnosis/, Construction/, UI/, Dev/)
+Source/ColonyDoctor/     the mod (Core/, Sampling/, Diagnosis/, Construction/, Fixes/, UI/, Dev/)
 Source/ColonyDoctor.Tests/  NUnitLite tests for Core/
 ```

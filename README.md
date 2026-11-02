@@ -55,7 +55,7 @@ For common causes, a fix button sits right under the reason. Nothing changes unt
 the dialog says what will change and what it costs. Afterwards the row is marked **Monitoring**
 until the work gets going, and **Undo** puts everything back.
 
-![Confirming a fix: ingredient radius 6 → 48](.github/screenshots/fix-confirm.jpg)
+![Confirming a fix: ingredient radius 6 → 50](.github/screenshots/fix-confirm.jpg)
 
 ![After the fix: Monitoring, with Undo](.github/screenshots/fix-undo.jpg)
 
@@ -68,7 +68,7 @@ changes a setting you could change yourself in the game's own windows.
 Blueprints and frames that touch are grouped into one site, so a planned room shows up as one row
 ("Granite wall ×14, wooden door ×1"), with how many pieces are left and why each is waiting.
 
-![A construction site waiting for slate blocks that are forbidden](.github/screenshots/construction.jpg)
+![A construction site whose slate blocks are all forbidden](.github/screenshots/construction.jpg)
 
 ### Hauling backlog
 Items lying around for over an hour, grouped by kind ("Steel ×340"): how long the oldest has
@@ -95,7 +95,7 @@ Colonists, slaves and prisoners who need tending and aren't getting it: medical 
 care", not lying in bed, no doctor available or able to reach them, or doctors busy with something
 else. Bleeding patients show how long they have left.
 
-![A patient who is up and about, so no doctor tends them](.github/screenshots/patients.jpg)
+![A patient whose medical care is set to No care](.github/screenshots/patients.jpg)
 
 ### Research
 The current project: no bench it can be researched at (for example a hi-tech research bench), a
@@ -107,6 +107,8 @@ busy with other work.
 ### Idle colonists
 Who stands around while on duty, and why: nothing they're allowed to do, all their work blocked
 (and by what), or work they didn't take.
+
+![A colonist idle while hunting and other work was waiting](.github/screenshots/idle.jpg)
 
 ### Alerts
 **Bills stalled**, **Construction stalled**, **Colonists idle**, **Hauling stalled**, **Food rotting
@@ -161,7 +163,7 @@ No DLCs are needed.
 
 - Works with RimWorld 1.6, with or without DLCs. Needs Harmony.
 - Safe to add to or remove from an existing save.
-- Designed to be Multiplayer-safe: diagnosis never changes game state or uses randomness, fixes are
+- Multiplayer-safe, tested with a host and a client: diagnosis never changes game state or uses randomness, fixes are
   sent through Multiplayer's sync, and **Diagnose modded benches** is switched off while Multiplayer
   is active. In Multiplayer, the **Monitoring** label and **Undo** show only for the player who applied
   the fix; the change itself reaches everyone.
