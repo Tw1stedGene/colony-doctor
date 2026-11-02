@@ -1,6 +1,6 @@
 # Colony Doctor
 
-![Colony Doctor: the Bottlenecks tab explaining why a bill is stalled](.github/preview.png)
+![Colony Doctor: why isn't work getting done?](.github/preview.png)
 
 **Why isn't work getting done? Colony Doctor tells you.** A RimWorld mod.
 
