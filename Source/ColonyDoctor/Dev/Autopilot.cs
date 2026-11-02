@@ -11,7 +11,7 @@ namespace ColonyDoctor.Dev
     /// The save is loaded at startup, the game runs at superfast speed, and "Log bill diagnoses" is written
     /// to the log after COLONYDOCTOR_AUTOPILOT_TICKS ticks (default 2500) and every 2500 ticks after.
     /// With COLONYDOCTOR_AUTOPILOT_SAVEAS set, the game is saved under that name after the first dump.
-    /// COLONYDOCTOR_AUTOPILOT_SETUP=outcompeted or hauling builds that test next to the first colonist after loading.
+    /// COLONYDOCTOR_AUTOPILOT_SETUP=outcompeted, hauling or fields builds that test next to the first colonist after loading.
     /// With COLONYDOCTOR_AUTOPILOT_QUIT=1, the game quits after the first dump (and save).
     /// </summary>
     [StaticConstructorOnStartup]
@@ -59,6 +59,12 @@ namespace ColonyDoctor.Dev
                     Pawn anchor = map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
                     IntVec3 origin = (anchor?.Position ?? map.Center) + new IntVec3(6, 0, 6);
                     TestScenarios.BuildOutcompetedTest(map, origin);
+                }
+                else if (Setup == "fields")
+                {
+                    Map map = Find.CurrentMap;
+                    Pawn anchor = map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
+                    TestScenarios.BuildFieldsTest(map, anchor?.Position ?? map.Center);
                 }
                 else if (Setup == "hauling")
                 {

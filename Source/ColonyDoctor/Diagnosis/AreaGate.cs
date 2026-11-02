@@ -35,7 +35,7 @@ namespace ColonyDoctor.Diagnosis
 
         /// <summary>
         /// No eligible worker / Area restriction: SubjectA = the restricted pawn with the best priority for the work
-        /// type, SubjectB = their area, SubjectC = the work type, ValueA = how many available pawns are restricted.
+        /// type, SubjectB = their area, SubjectC = the work type, ValueC = how many available pawns are restricted.
         /// </summary>
         public static Core.Diagnosis Diagnosis(List<Pawn> pawns, WorkTypeDef work)
         {
@@ -56,7 +56,7 @@ namespace ColonyDoctor.Diagnosis
             d.SubjectA = best;
             d.SubjectB = best?.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
             d.SubjectC = work;
-            d.ValueA = pawns.Count;
+            d.ValueC = pawns.Count;
             return d;
         }
     }

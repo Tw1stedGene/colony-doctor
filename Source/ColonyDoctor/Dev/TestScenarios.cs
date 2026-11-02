@@ -199,6 +199,118 @@ namespace ColonyDoctor.Dev
             Log.Message("[Colony Doctor] Hauling test built:\n  " + string.Join("\n  ", built));
         }
 
+[DebugAction("Colony Doctor", "Build fields, orders and research test", actionType = DebugActionType.ToolMap,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void BuildFieldsTest()
+        {
+            DebugTools.curTool = null;
+            BuildFieldsTest(Find.CurrentMap, Verse.UI.MouseCell());
+        }
+
+        /// <summary>
+        /// Growing, orders, area and research scenarios (changes zones, allowed areas, designations and the research
+        /// project, so only use it on a test colony):
+        /// G1 devilstrand field (Plants 10), G2 potato field outside everyone's allowed area, O1 mining outside the
+        /// area, O2 hunt with unarmed hunters, O3 tame a thrumbo, R1 project needing a hi-tech bench.
+        /// </summary>
+        internal static void BuildFieldsTest(Map map, IntVec3 origin)
+        {
+            var built = new List<string>();
+
+            // Allowed area around the origin, assigned to every free colonist.
+            if (map.areaManager.TryMakeNewAllowed(out Area_Allowed area))
+            {
+                area.SetLabel("CD test area");
+                foreach (IntVec3 c in GenRadial.RadialCellsAround(origin, 6f, true))
+                {
+                    if (c.InBounds(map)) area[c] = true;
+                }
+                foreach (Pawn p in map.mapPawns.FreeColonistsSpawned) p.playerSettings.AreaRestrictionInPawnCurrentMap = area;
+                built.Add($"area 'CD test area' r=6 around {origin} for all colonists");
+            }
+
+            Zone_Growing Field(IntVec3 at, string plant, string label)
+            {
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(plant);
+                if (def == null) return null;
+                var z = new Zone_Growing(map.zoneManager);
+                map.zoneManager.RegisterZone(z);
+                z.SetPlantDefToGrow(def);
+                foreach (IntVec3 c in GenRadial.RadialCellsAround(at, 2.5f, true))
+                {
+                    if (!c.InBounds(map) || c.Fogged(map) || c.GetFirstBuilding(map) != null || map.zoneManager.ZoneAt(c) != null) continue;
+                    if (c.GetThingList(map).Any(t => t.def.category != ThingCategory.Plant && t.def.category != ThingCategory.Item && !t.def.CanOverlapZones)) continue;
+                    if (map.fertilityGrid.FertilityAt(c) < def.plant.fertilityMin) continue;
+                    foreach (Thing t in c.GetThingList(map).ToList())
+                    {
+                        if (t.def.category == ThingCategory.Plant || t.def.category == ThingCategory.Item) t.Destroy();
+                    }
+                    z.AddCell(c);
+                }
+                if (z.Cells.Count == 0)
+                {
+                    z.Delete();
+                    built.Add($"{label}: no fertile cells near {at}");
+                    return null;
+                }
+                z.label = label;
+                built.Add($"{label}: {def.label} zone, {z.Cells.Count} cells at {at}");
+                return z;
+            }
+            Field(origin, "Plant_Devilstrand", "G1 devilstrand");
+            Field(origin + new IntVec3(16, 0, 0), "Plant_Potato", "G2 outside area");
+
+            // O1: mining outside the area.
+            int mined = 0;
+            foreach (IntVec3 c in GenRadial.RadialCellsAround(origin, 40f, false))
+            {
+                if (mined >= 12) break;
+                if (!c.InBounds(map) || c.Fogged(map) || c.InHorDistOf(origin, 10f)) continue;
+                Building b = c.GetEdifice(map);
+                if (b == null || !b.def.mineable || map.designationManager.DesignationAt(c, DesignationDefOf.Mine) != null) continue;
+                map.designationManager.AddDesignation(new Designation(c, DesignationDefOf.Mine));
+                mined++;
+            }
+            built.Add($"O1 mine ×{mined} outside the area");
+
+            Pawn Animal(string kind, IntVec3 at)
+            {
+                PawnKindDef k = DefDatabase<PawnKindDef>.GetNamedSilentFail(kind);
+                if (k == null) return null;
+                Pawn a = PawnGenerator.GeneratePawn(k);
+                IntVec3 cell = CellFinder.StandableCellNear(at, map, 5f);
+                if (!cell.IsValid) return null;
+                GenSpawn.Spawn(a, cell, map);
+                return a;
+            }
+            Pawn deer = Animal("Deer", origin + new IntVec3(-4, 0, 4));
+            foreach (Pawn p in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (p.equipment?.Primary != null && p.equipment.Primary.def.IsRangedWeapon) p.equipment.DestroyEquipment(p.equipment.Primary);
+            }
+            if (deer != null)
+            {
+                map.designationManager.AddDesignation(new Designation(deer, DesignationDefOf.Hunt));
+                built.Add($"O2 hunt {deer.LabelShort}, colonists' ranged weapons removed");
+            }
+            Pawn thrumbo = Animal("Thrumbo", origin + new IntVec3(4, 0, -4));
+            if (thrumbo != null)
+            {
+                map.designationManager.AddDesignation(new Designation(thrumbo, DesignationDefOf.Tame));
+                built.Add($"O3 tame thrumbo (needs Animals {TrainableUtility.MinimumHandlingSkill(thrumbo)})");
+            }
+
+            ResearchProjectDef proj = DefDatabase<ResearchProjectDef>.GetNamedSilentFail("MicroelectronicsBasics");
+            if (proj == null || proj.IsFinished)
+                proj = DefDatabase<ResearchProjectDef>.AllDefsListForReading.FirstOrDefault(r => !r.IsFinished && r.requiredResearchBuilding != null);
+            if (proj != null)
+            {
+                Find.ResearchManager.SetCurrentProject(proj);
+                built.Add($"R1 research {proj.label} (needs {proj.requiredResearchBuilding?.label})");
+            }
+            Log.Message("[Colony Doctor] Fields test built:\n  " + string.Join("\n  ", built));
+        }
+
         private static string Tally(Sampling.TrackedProblem p)
         {
             if (p.Competing.Total == 0) return "";

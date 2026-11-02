@@ -12,8 +12,8 @@ namespace ColonyDoctor.UI
             string pawn = (d.SubjectA as Pawn)?.LabelShort ?? "?";
             string area = (d.SubjectB as Area)?.Label ?? "?";
             string work = (d.SubjectC as WorkTypeDef)?.labelShort ?? "?";
-            return d.ValueA > 1
-                ? "ColonyDoctor_Area_Many".Translate(pawn.Named("PAWN"), area.Named("AREA"), work.Named("WORK"), (d.ValueA - 1).Named("OTHERS"))
+            return d.ValueC > 1
+                ? "ColonyDoctor_Area_Many".Translate(pawn.Named("PAWN"), area.Named("AREA"), work.Named("WORK"), (d.ValueC - 1).Named("OTHERS"))
                 : "ColonyDoctor_Area_One".Translate(pawn.Named("PAWN"), area.Named("AREA"), work.Named("WORK"));
         }
     }
