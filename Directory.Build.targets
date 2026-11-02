@@ -1,0 +1,18 @@
+<Project>
+  <!-- When RimWorldModsDir is set (see Directory.Build.props.user), copy the mod into the game's Mods folder after build. -->
+  <Target Name="DeployToRimWorld" AfterTargets="Build" Condition="'$(RimWorldModsDir)' != '' And '$(MSBuildProjectName)' == 'ColonyDoctor'">
+    <PropertyGroup>
+      <ModRoot>$(MSBuildThisFileDirectory)</ModRoot>
+      <ModTarget>$(RimWorldModsDir)/ColonyDoctor</ModTarget>
+    </PropertyGroup>
+    <ItemGroup>
+      <ModFolder Include="About;1.6;Defs;Languages" />
+      <ModFiles Include="$(ModRoot)%(ModFolder.Identity)/**" Exclude="$(ModRoot)**/.gitkeep">
+        <Folder>%(ModFolder.Identity)</Folder>
+      </ModFiles>
+    </ItemGroup>
+    <RemoveDir Directories="$(ModTarget)" />
+    <Copy SourceFiles="@(ModFiles)" DestinationFiles="@(ModFiles->'$(ModTarget)/%(Folder)/%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Message Importance="high" Text="Deployed mod to $(ModTarget)" />
+  </Target>
+</Project>

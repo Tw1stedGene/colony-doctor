@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <ColonyDoctor_ModName>Colony Doctor</ColonyDoctor_ModName>
+
+  <!-- Settings -->
+  <ColonyDoctor_SettingAlert>Show "Bills stalled" alert</ColonyDoctor_SettingAlert>
+  <ColonyDoctor_SettingAlertDesc>Show an alert on the right when bills have been stalled for most of the last day.</ColonyDoctor_SettingAlertDesc>
+  <ColonyDoctor_SettingProbes>Diagnose modded benches</ColonyDoctor_SettingProbes>
+  <ColonyDoctor_SettingProbesDesc>Ask modded work givers why they can't do a bill. Always off while the Multiplayer mod is active.</ColonyDoctor_SettingProbesDesc>
+
+  <!-- Tab -->
+  <ColonyDoctor_TabTitle>Bottlenecks</ColonyDoctor_TabTitle>
+  <ColonyDoctor_Category_Bill>Bills</ColonyDoctor_Category_Bill>
+  <ColonyDoctor_Category_Construction>Construction</ColonyDoctor_Category_Construction>
+  <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
+  <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
+  <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
+  <ColonyDoctor_AxisStart_Hour>60 min ago</ColonyDoctor_AxisStart_Hour>
+  <ColonyDoctor_AxisStart_Day>24 h ago</ColonyDoctor_AxisStart_Day>
+  <ColonyDoctor_AxisStart_Quadrum>15 days ago</ColonyDoctor_AxisStart_Quadrum>
+  <ColonyDoctor_AxisEnd_Hour>now</ColonyDoctor_AxisEnd_Hour>
+  <ColonyDoctor_AxisEnd_Day>now</ColonyDoctor_AxisEnd_Day>
+  <ColonyDoctor_AxisEnd_Quadrum>today</ColonyDoctor_AxisEnd_Quadrum>
+  <ColonyDoctor_NothingStalled>Nothing stalled in this category.</ColonyDoctor_NothingStalled>
+  <ColonyDoctor_NoMap>No map selected.</ColonyDoctor_NoMap>
+  <ColonyDoctor_Stalled>stalled</ColonyDoctor_Stalled>
+  <ColonyDoctor_BenchInRoom>{BENCH} in the {ROOM}</ColonyDoctor_BenchInRoom>
+  <ColonyDoctor_JumpTo>Jump to</ColonyDoctor_JumpTo>
+  <ColonyDoctor_RangeStalled>{RANGE}, {PCT}% stalled</ColonyDoctor_RangeStalled>
+  <ColonyDoctor_NoData>No data yet</ColonyDoctor_NoData>
+  <ColonyDoctor_WhatBlocked>What blocked it</ColonyDoctor_WhatBlocked>
+  <ColonyDoctor_OutputHeading>Where products go</ColonyDoctor_OutputHeading>
+  <ColonyDoctor_Fixes>Fixes</ColonyDoctor_Fixes>
+  <ColonyDoctor_NoFix>No one-click fix yet. Use Jump to and check the bench and its bill.</ColonyDoctor_NoFix>
+  <ColonyDoctor_Ingredients>ingredients</ColonyDoctor_Ingredients>
+
+  <!-- Reasons -->
+  <ColonyDoctor_Reason_Working>Working</ColonyDoctor_Reason_Working>
+  <ColonyDoctor_Reason_BenchProblem>Bench problem</ColonyDoctor_Reason_BenchProblem>
+  <ColonyDoctor_Reason_NoEligibleWorker>No eligible worker</ColonyDoctor_Reason_NoEligibleWorker>
+  <ColonyDoctor_Reason_MaterialsMissing>Materials missing</ColonyDoctor_Reason_MaterialsMissing>
+  <ColonyDoctor_Reason_WaitingForWorker>Waiting for a worker</ColonyDoctor_Reason_WaitingForWorker>
+  <ColonyDoctor_Reason_Unknown>Unknown</ColonyDoctor_Reason_Unknown>
+  <ColonyDoctor_Reason_Suspended>Suspended</ColonyDoctor_Reason_Suspended>
+  <ColonyDoctor_Reason_Blocked>Blocked</ColonyDoctor_Reason_Blocked>
+
+  <!-- Explanations -->
+  <ColonyDoctor_Why_Working>Someone was working on this bill.</ColonyDoctor_Why_Working>
+  <ColonyDoctor_Why_Unpowered>The {BENCH} has no power.</ColonyDoctor_Why_Unpowered>
+  <ColonyDoctor_Why_Unfueled>The {BENCH} is out of fuel.</ColonyDoctor_Why_Unfueled>
+  <ColonyDoctor_Why_BrokenDown>The {BENCH} is broken down and waiting for repair.</ColonyDoctor_Why_BrokenDown>
+  <ColonyDoctor_Why_InteractionBlocked>The spot where a worker stands to use the {BENCH} is blocked.</ColonyDoctor_Why_InteractionBlocked>
+  <ColonyDoctor_Why_InteractionBlockedBy>The spot where a worker stands to use the {BENCH} is blocked by {THING}.</ColonyDoctor_Why_InteractionBlockedBy>
+  <ColonyDoctor_Why_BenchUnreachable>No colonist can reach the {BENCH}.</ColonyDoctor_Why_BenchUnreachable>
+  <ColonyDoctor_Why_NoColonists>There are no colonists on this map.</ColonyDoctor_Why_NoColonists>
+  <ColonyDoctor_Why_Incapable>No colonist is capable of {WORK}.</ColonyDoctor_Why_Incapable>
+  <ColonyDoctor_Why_WorkTypeDisabled>Nobody has {WORK} enabled in the Work tab.</ColonyDoctor_Why_WorkTypeDisabled>
+  <ColonyDoctor_Why_PawnRestriction>The bill's worker restriction excludes everyone who could do it, including {PAWN}.</ColonyDoctor_Why_PawnRestriction>
+  <ColonyDoctor_Why_SkillRange>{PAWN} is the best candidate with {SKILL} {LEVEL}, but the bill only allows {MIN}–{MAX}.</ColonyDoctor_Why_SkillRange>
+  <ColonyDoctor_Why_SkillMin>{PAWN} is the best candidate with {SKILL} {LEVEL}, but the recipe needs at least {MIN}.</ColonyDoctor_Why_SkillMin>
+  <ColonyDoctor_Why_AreaRestriction>{PAWN} could do the bill, but their allowed area ({AREA}) keeps them away from the {BENCH}.</ColonyDoctor_Why_AreaRestriction>
+  <ColonyDoctor_Why_WorkersUnavailable>{PAWN} could do the bill but is downed, drafted or having a mental break.</ColonyDoctor_Why_WorkersUnavailable>
+  <ColonyDoctor_Why_NoneOnMap>There is no {ING} on the map.</ColonyDoctor_Why_NoneOnMap>
+  <ColonyDoctor_Why_ExcludedByBillFilter>There is {ING} on the map, but the bill's ingredient filter excludes it.</ColonyDoctor_Why_ExcludedByBillFilter>
+  <ColonyDoctor_Why_Forbidden>The usable {ING} is forbidden or outside the worker's allowed area.</ColonyDoctor_Why_Forbidden>
+  <ColonyDoctor_Why_OutsideRadius>{COUNT} {ING} is available, but the nearest is {DIST} tiles from the bench. The bill only searches {RADIUS}.</ColonyDoctor_Why_OutsideRadius>
+  <ColonyDoctor_Why_Reserved>The usable {ING} is reserved by someone else.</ColonyDoctor_Why_Reserved>
+  <ColonyDoctor_Why_ReservedBy>The usable {ING} is reserved by {PAWN}.</ColonyDoctor_Why_ReservedBy>
+  <ColonyDoctor_Why_Unreachable>The usable {ING} can't be reached from the bench.</ColonyDoctor_Why_Unreachable>
+  <ColonyDoctor_Why_NoStockpileAccepts>The bill takes {PRODUCT} to the best stockpile, but no stockpile accepts it, so finished items are dropped next to the bench.</ColonyDoctor_Why_NoStockpileAccepts>
+  <ColonyDoctor_Why_SpecificStockpileRejects>The bill takes {PRODUCT} to {STOCKPILE}, which doesn't accept it, so finished items are dropped next to the bench.</ColonyDoctor_Why_SpecificStockpileRejects>
+  <ColonyDoctor_Why_BenchBusy>{PAWN} is using the bench for another bill ({BILL}).</ColonyDoctor_Why_BenchBusy>
+  <ColonyDoctor_Why_Waiting>Materials and a worker are available, but nobody has started this bill. Workers were busy with other jobs.</ColonyDoctor_Why_Waiting>
+  <ColonyDoctor_Why_Generic>This bench is handled by a modded work giver. Colony Doctor can't tell why it's stalled yet.</ColonyDoctor_Why_Generic>
+
+  <!-- Alert -->
+  <ColonyDoctor_AlertLabel>Bills stalled ({COUNT})</ColonyDoctor_AlertLabel>
+  <ColonyDoctor_AlertExplanation>These bills have been stalled for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertExplanation>
+
+  <!-- Construction sites -->
+  <ColonyDoctor_PiecesLeft>{COUNT} pieces left</ColonyDoctor_PiecesLeft>
+  <ColonyDoctor_PiecesPrefix>{COUNT} of {TOTAL} pieces:</ColonyDoctor_PiecesPrefix>
+  <ColonyDoctor_ThisPiece>this piece</ColonyDoctor_ThisPiece>
+  <ColonyDoctor_SiteInRoom>in the {ROOM}</ColonyDoctor_SiteInRoom>
+  <ColonyDoctor_SiteNear>{DIR} the {BUILDING}</ColonyDoctor_SiteNear>
+  <ColonyDoctor_SiteOutdoors>outdoors</ColonyDoctor_SiteOutdoors>
+  <ColonyDoctor_DirNextTo>next to</ColonyDoctor_DirNextTo>
+  <ColonyDoctor_DirNorth>north of</ColonyDoctor_DirNorth>
+  <ColonyDoctor_DirSouth>south of</ColonyDoctor_DirSouth>
+  <ColonyDoctor_DirEast>east of</ColonyDoctor_DirEast>
+  <ColonyDoctor_DirWest>west of</ColonyDoctor_DirWest>
+  <ColonyDoctor_DirNortheast>northeast of</ColonyDoctor_DirNortheast>
+  <ColonyDoctor_DirNorthwest>northwest of</ColonyDoctor_DirNorthwest>
+  <ColonyDoctor_DirSoutheast>southeast of</ColonyDoctor_DirSoutheast>
+  <ColonyDoctor_DirSouthwest>southwest of</ColonyDoctor_DirSouthwest>
+
+  <ColonyDoctor_Site_Working>Someone was delivering materials, clearing the site or building.</ColonyDoctor_Site_Working>
+  <ColonyDoctor_Site_Waiting>Nothing blocks it and a builder is available, but nobody has started. Workers were busy with other jobs.</ColonyDoctor_Site_Waiting>
+  <ColonyDoctor_Site_Incapable>No colonist is capable of construction.</ColonyDoctor_Site_Incapable>
+  <ColonyDoctor_Site_WorkTypeDisabled>Nobody has Construction enabled in the Work tab.</ColonyDoctor_Site_WorkTypeDisabled>
+  <ColonyDoctor_Site_SkillTooLow>{PAWN} is the best builder with {SKILL} {LEVEL}, but the {THING} needs {MIN}.</ColonyDoctor_Site_SkillTooLow>
+  <ColonyDoctor_Site_Unreachable>No builder can reach it.</ColonyDoctor_Site_Unreachable>
+  <ColonyDoctor_Site_WorkersUnavailable>{PAWN} could build it but is downed, drafted or having a mental break.</ColonyDoctor_Site_WorkersUnavailable>
+  <ColonyDoctor_Site_BlockedPlant>{THING} is in the way and has to be cut first.</ColonyDoctor_Site_BlockedPlant>
+  <ColonyDoctor_Site_BlockedItem>{THING} is in the way and has to be hauled away first.</ColonyDoctor_Site_BlockedItem>
+  <ColonyDoctor_Site_BlockedBuilding>{THING} is in the way and has to be deconstructed first.</ColonyDoctor_Site_BlockedBuilding>
+  <ColonyDoctor_Site_BlockedBuildingStuck>{THING} is in the way and your colony can't deconstruct it.</ColonyDoctor_Site_BlockedBuildingStuck>
+  <ColonyDoctor_Site_BlockedRock>{THING} is in the way and has to be mined first.</ColonyDoctor_Site_BlockedRock>
+  <ColonyDoctor_Site_BlockedRockNoMiner>{THING} is in the way and has to be mined, but no builder has Mining enabled.</ColonyDoctor_Site_BlockedRockNoMiner>
+  <ColonyDoctor_Site_NotEnough>Not enough {MAT}: {SHORT} more needed, {USABLE} usable on the map.</ColonyDoctor_Site_NotEnough>
+  <ColonyDoctor_Site_Forbidden>The {MAT} on the map is forbidden or outside allowed areas ({SHORT} short).</ColonyDoctor_Site_Forbidden>
+  <ColonyDoctor_Site_MatUnreachable>The {MAT} on the map can't be reached from the site ({SHORT} short).</ColonyDoctor_Site_MatUnreachable>
+  <ColonyDoctor_Site_Reserved>The {MAT} on the map is reserved by other jobs ({SHORT} short).</ColonyDoctor_Site_Reserved>
+
+  <ColonyDoctor_AlertConstructionLabel>Construction stalled ({COUNT})</ColonyDoctor_AlertConstructionLabel>
+  <ColonyDoctor_AlertConstructionExplanation>These construction sites have been stalled for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertConstructionExplanation>
+</LanguageData>

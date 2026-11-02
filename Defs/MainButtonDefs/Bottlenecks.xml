@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <MainButtonDef>
+    <defName>ColonyDoctor_Bottlenecks</defName>
+    <label>bottlenecks</label>
+    <description>See which bills are stalled and why.</description>
+    <tabWindowClass>ColonyDoctor.UI.MainTabWindow_Bottlenecks</tabWindowClass>
+    <order>66</order>
+  </MainButtonDef>
+</Defs>

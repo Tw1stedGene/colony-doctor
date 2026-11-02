@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Copy to Directory.Build.props.user and point at your RimWorld Mods folder. -->
+    <RimWorldModsDir>$(HOME)/Library/Application Support/Steam/steamapps/common/RimWorld/RimWorldMac.app/Mods</RimWorldModsDir>
+  </PropertyGroup>
+</Project>

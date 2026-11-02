@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+Directory.Build.props.user
+1.6/Assemblies/*.dll
+1.6/Assemblies/*.pdb
+.DS_Store
+.vs/
+.idea/
+openspec/
+docs/
