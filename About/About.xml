@@ -10,18 +10,24 @@
   </supportedVersions>
   <description>Why isn't work getting done? Colony Doctor tells you.
 
-Colony Doctor watches your bills and construction sites over time and explains, in plain language, what has been holding each one up. A new Bottlenecks tab lists everything that's stalled, worst first, over the last hour, day or quadrum, with a timeline, a breakdown of the reasons and Jump to.
+Colony Doctor watches the work in your colony over time and explains, in plain language, what has been holding each piece up. A new Bottlenecks tab lists everything that's stalled, worst first, over the last hour, day or quadrum, with a timeline, a breakdown of the reasons and Jump to.
+
+It covers bills, construction, idle colonists, hauling, growing, orders (mining, cutting, deconstruction, smoothing, hunting, taming, slaughter), patients and research.
 
 What it can tell you:
 - Bench problem: no power, out of fuel, broken down, the work spot is blocked, or no one can reach the bench.
-- No eligible worker: nobody has the work type enabled or is capable of it, the bill's worker restriction or skill range excludes everyone, or an allowed area keeps them away.
-- Blocked: a plant, item, building or rock is in the way of a construction site.
+- No eligible worker: nobody has the work type enabled or is capable of it, the skill needed is too high, the bill's restrictions exclude everyone, an allowed area keeps everyone away, or everyone is downed, drafted or having a mental break.
+- Blocked: something is in the way of a construction site, the targets are forbidden, or a patient isn't in bed.
 - Materials missing: none on the map, excluded by the bill's filter, forbidden, outside the ingredient radius, reserved or unreachable.
+- No storage: nothing accepts the item, or every storage that does is full.
+- Outcompeted: someone could do it, but spent the time on work they rank higher. Colony Doctor names them and the work.
 - Waiting for a worker: nothing blocks it, but nobody has started yet.
 
-"Bills stalled" and "Construction stalled" alerts tell you when something has been stuck for at least half of the last day.
+One-click fixes for common causes: widen the ingredient radius or skill range, allow any worker, unforbid things, allow an item in a stockpile, raise a work priority, or let a colonist leave their allowed area. You confirm each fix first, and Undo puts it back.
 
-Read-only: Colony Doctor never changes your colony, and nothing is written to your save, so you can add or remove it mid-game. Requires Harmony.</description>
+Alerts tell you when bills, construction, hauling or patients have been stuck for a while, when colonists stand idle, and when food is about to rot.
+
+Diagnosis is read-only and nothing is written to your save, so you can add or remove it mid-game. Requires Harmony.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

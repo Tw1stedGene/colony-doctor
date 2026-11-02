@@ -415,9 +415,11 @@ namespace ColonyDoctor.UI
                 for (int i = 0; i < outputFixes.Count; i++) y = FixButton(y, w, row, outputFixes[i]);
             }
 
-            // Fixes (spec: Detail panel, Monitoring).
-            y = Heading(y + 8f, w, "ColonyDoctor_Fixes".Translate());
+            // Fixes (spec: Detail panel, Monitoring). Offered fixes sit under their reasons, so the section only
+            // appears for monitoring after a fix, or to say there is no one-click fix.
             var state = row.Problem.StateAt(Find.TickManager.TicksGame);
+            bool anyFix = AnyFix();
+            if (state != FixState.None || !anyFix) y = Heading(y + 8f, w, "ColonyDoctor_Fixes".Translate());
             if (state != FixState.None)
             {
                 string label = (state == FixState.Fixed ? "ColonyDoctor_FixState_Fixed" : "ColonyDoctor_FixState_Monitoring")
@@ -432,7 +434,7 @@ namespace ColonyDoctor.UI
                 }
                 y += Mathf.Max(mh, 30f) + 6f;
             }
-            if (!AnyFix())
+            if (!anyFix && state == FixState.None)
             {
                 GUI.color = ReasonStyle.Muted;
                 string note = "ColonyDoctor_NoFix".Translate();

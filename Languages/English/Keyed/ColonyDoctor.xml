@@ -122,7 +122,7 @@
   <ColonyDoctor_Site_BlockedRock>{THING} is in the way and has to be mined first.</ColonyDoctor_Site_BlockedRock>
   <ColonyDoctor_Site_BlockedRockNoMiner>{THING} is in the way and has to be mined, but no builder has Mining enabled.</ColonyDoctor_Site_BlockedRockNoMiner>
   <ColonyDoctor_Site_NotEnough>Not enough {MAT}: {SHORT} more needed, {USABLE} usable on the map.</ColonyDoctor_Site_NotEnough>
-  <ColonyDoctor_Site_Forbidden>The {MAT} on the map is forbidden or outside allowed areas ({SHORT} short).</ColonyDoctor_Site_Forbidden>
+  <ColonyDoctor_Site_Forbidden>Every usable stack of {MAT} on the map is forbidden or outside allowed areas ({SHORT} short).</ColonyDoctor_Site_Forbidden>
   <ColonyDoctor_Site_MatUnreachable>The {MAT} on the map can't be reached from the site ({SHORT} short).</ColonyDoctor_Site_MatUnreachable>
   <ColonyDoctor_Site_Reserved>The {MAT} on the map is reserved by other jobs ({SHORT} short).</ColonyDoctor_Site_Reserved>
 

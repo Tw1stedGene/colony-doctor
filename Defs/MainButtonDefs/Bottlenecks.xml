@@ -3,7 +3,7 @@
   <MainButtonDef>
     <defName>ColonyDoctor_Bottlenecks</defName>
     <label>bottlenecks</label>
-    <description>See which bills are stalled and why.</description>
+    <description>See what work is stalled in your colony and why: bills, construction, hauling, growing, orders, patients, research and idle colonists.</description>
     <tabWindowClass>ColonyDoctor.UI.MainTabWindow_Bottlenecks</tabWindowClass>
     <order>66</order>
   </MainButtonDef>
