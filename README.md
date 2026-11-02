@@ -28,7 +28,7 @@ stalled, where it is, the main reason and how much of that time it was stalled.
 ### Why, in plain language
 Select a row to see a timeline coloured by reason, a breakdown of what blocked it, and an explanation
 for each reason, such as "The electric smithy has no power.", "Nobody has Crafting enabled in the
-Work tab." or "150 fabric or leather is available, but the nearest is 48 tiles from the bench. The
+Work tab." or "The map has 150 fabric or leather, but the nearest is 48 tiles from the bench. The
 bill only searches 6." **Jump to** takes the camera straight to the bench, site, field or colonist.
 
 The reasons, in the order you'd fix them:
@@ -163,7 +163,8 @@ No DLCs are needed.
 - Safe to add to or remove from an existing save.
 - Designed to be Multiplayer-safe: diagnosis never changes game state or uses randomness, fixes are
   sent through Multiplayer's sync, and **Diagnose modded benches** is switched off while Multiplayer
-  is active.
+  is active. In Multiplayer, the **Monitoring** label and **Undo** show only for the player who applied
+  the fix; the change itself reaches everyone.
 - Benches and bills added by other mods are covered when they use the game's normal bill system.
   Others fall back to **Unknown**, or to what the bench's own code reports when **Diagnose modded
   benches** is on.

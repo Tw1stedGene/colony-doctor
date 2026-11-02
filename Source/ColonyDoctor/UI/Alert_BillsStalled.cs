@@ -243,6 +243,8 @@ namespace ColonyDoctor.UI
             {
                 TrackedPatient t = list[i];
                 if (t.IsGone || !t.History.IsCurrentlyStalled || t.History.ContinuousStallTicks(now) < MinStallTicks) continue;
+                // No care is the player's own choice (often for prisoners); the row explains it, the alert stays quiet.
+                if (t.History.LastReason == Reason.Blocked && t.History.LastFor(Reason.Blocked).Detail == Detail.MedicalCareOff) continue;
                 culprits.Add(t.Pawn);
             }
         }

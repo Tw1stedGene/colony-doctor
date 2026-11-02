@@ -28,7 +28,18 @@ namespace ColonyDoctor.Diagnosis
             this.reach = reach;
         }
 
-        public static bool NeedsTending(Pawn p) => HealthAIUtility.ShouldBeTendedNowByPlayer(p);
+/// <summary>
+        /// Vanilla's <see cref="HealthAIUtility.ShouldBeTendedNowByPlayer"/>, minus its "medical care is No care" check:
+        /// those patients are tracked so the row can say that care is switched off (detail MedicalCareOff).
+        /// Prisoners set for execution and animals marked for slaughter are left out, as in vanilla.
+        /// </summary>
+        public static bool NeedsTending(Pawn p)
+        {
+            if (p.playerSettings == null || p.health == null) return false;
+            if (p.guest != null && p.guest.IsInteractionEnabled(PrisonerInteractionModeDefOf.Execution)) return false;
+            if (PawnUtility.ShouldBeSlaughtered(p)) return false;
+            return p.health.HasHediffsNeedingTendByPlayer(false);
+        }
 
         public Core.Diagnosis Diagnose(TrackedPatient t, int tick)
         {

@@ -61,6 +61,11 @@ namespace ColonyDoctor.Sampling
         public double AvgTickMs { get; private set; }
         public double PeakTickMs { get; private set; }
 
+        /// <summary>Dev only (autopilot): sum GC heap growth during <see cref="Tick"/>; ticks with a collection are skipped.</summary>
+        public static bool MeasureAllocations;
+        public long AllocBytes;
+        public int AllocTicks;
+
         /// <summary>Bumped whenever the tracked set changes, so the UI knows to rebuild.</summary>
         public int Version { get; private set; }
 
@@ -97,7 +102,17 @@ namespace ColonyDoctor.Sampling
         {
             if (!map.IsPlayerHome) return;
             long start = Stopwatch.GetTimestamp();
+            long mem = MeasureAllocations ? GC.GetTotalMemory(false) : 0;
             TickInner();
+            if (MeasureAllocations)
+            {
+                long delta = GC.GetTotalMemory(false) - mem;
+                if (delta >= 0)
+                {
+                    AllocBytes += delta;
+                    AllocTicks++;
+                }
+            }
             double ms = (Stopwatch.GetTimestamp() - start) * TicksToMs;
             AvgTickMs = AvgTickMs * 0.99 + ms * 0.01;
             if (ms > PeakTickMs) PeakTickMs = ms;

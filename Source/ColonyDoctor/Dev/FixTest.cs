@@ -59,6 +59,23 @@ namespace ColonyDoctor.Dev
             Log.Message(sb.ToString());
         }
 
+/// <summary>Applies the first Widen radius fix and keeps it (save/reload check). True when one was applied.</summary>
+        public static bool ApplyOne(Map map)
+        {
+            MapTracker tracker = MapTracker.Existing(map);
+            if (tracker == null) return false;
+            foreach (TrackedProblem p in tracker.Problems)
+            {
+                if (p.IsGone) continue;
+                Fix f = FixCatalog.For(p, p.History.LastFor(p.History.LastReason));
+                if (f == null || !f.Change.Contains("radius") || !f.StillNeeded()) continue;
+                f.Apply();
+                Log.Message($"[Colony Doctor] Kept fix: {Safe(() => p.Title)}: {f.Change}");
+                return true;
+            }
+            return false;
+        }
+
         private static readonly HashSet<TrackedProblem> testedOutcompeted = new HashSet<TrackedProblem>();
 
         /// <summary>Called every sampling cycle by the autopilot: tests the fix of any problem that just became Outcompeted.</summary>

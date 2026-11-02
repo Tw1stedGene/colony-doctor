@@ -27,6 +27,8 @@ namespace ColonyDoctor.Dev
             int.TryParse(Environment.GetEnvironmentVariable("COLONYDOCTOR_AUTOPILOT_DUMPS"), out int n) && n > 0 ? n : 1;
         private static int dumpsDone;
         private static int nextFixCheck;
+        private static readonly bool KeepFix = Environment.GetEnvironmentVariable("COLONYDOCTOR_AUTOPILOT_KEEPFIX") == "1";
+        private static bool keptFix;
         private static readonly bool FixTestOn = Environment.GetEnvironmentVariable("COLONYDOCTOR_AUTOPILOT_FIXTEST") == "1";
         private static readonly int FirstDumpAfter =
             int.TryParse(Environment.GetEnvironmentVariable("COLONYDOCTOR_AUTOPILOT_TICKS"), out int t) ? t : DumpEvery;
@@ -47,6 +49,21 @@ namespace ColonyDoctor.Dev
                 if (Current.ProgramState == ProgramState.Entry)
                     GameDataSaveLoader.LoadGame(SaveName);
             });
+        }
+
+        /// <summary>Bill radii and measured cost, for save/reload and load checks.</summary>
+        private static void LogState()
+        {
+            Map map = Find.CurrentMap;
+            var t = Sampling.MapTracker.Existing(map);
+            if (t == null) return;
+            var radii = t.Tracked.Where(b => b.Bill.LabelCap.ToString().StartsWith("T7")).Select(b => $"{b.Bill.LabelCap}={b.Bill.ingredientSearchRadius}");
+            var alerts = new Alert[] { new UI.Alert_BillsStalled(), new UI.Alert_ConstructionStalled(), new UI.Alert_ColonistsIdle(),
+                new UI.Alert_HaulingStalled(), new UI.Alert_RottingUncollected(), new UI.Alert_PatientsUntended() };
+            Log.Message("[Colony Doctor] Alerts: " + string.Join(", ", alerts.Where(a => { try { return a.GetReport().active; } catch { return false; } })
+                .Select(a => a.GetType().Name)));
+            Log.Message($"[Colony Doctor] State: problems={t.Problems.Count} bills={t.Tracked.Count} avgMs={t.AvgTickMs:0.000} peakMs={t.PeakTickMs:0.00} " +
+                        $"allocPerTick={(t.AllocTicks > 0 ? t.AllocBytes / t.AllocTicks : -1)}B over {t.AllocTicks} ticks; {string.Join(", ", radii)}");
         }
 
         /// <summary>Called every frame while playing.</summary>
@@ -73,6 +90,17 @@ namespace ColonyDoctor.Dev
                     Pawn anchor = map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
                     TestScenarios.BuildFieldsTest(map, anchor?.Position ?? map.Center);
                 }
+                if (Array.IndexOf(setups, "extra") >= 0)
+                {
+                    Map map = Find.CurrentMap;
+                    Pawn anchor = map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
+                    TestScenarios.BuildExtraTest(map, anchor?.Position ?? map.Center);
+                }
+                if (Array.IndexOf(setups, "big") >= 0)
+                {
+                    TestScenarios.BuildBigTest(Find.CurrentMap);
+                    Sampling.MapTracker.MeasureAllocations = true;
+                }
                 if (Array.IndexOf(setups, "hauling") >= 0)
                 {
                     Map map = Find.CurrentMap;
@@ -90,6 +118,8 @@ namespace ColonyDoctor.Dev
             if (now < nextDump) return;
 
             TestScenarios.LogDiagnoses();
+            LogState();
+            if (KeepFix && !keptFix) keptFix = FixTest.ApplyOne(Find.CurrentMap);
             if (FixTestOn) FixTest.Run(Find.CurrentMap);
             nextDump = now + DumpEvery;
 

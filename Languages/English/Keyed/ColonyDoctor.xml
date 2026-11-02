@@ -69,12 +69,12 @@
   <ColonyDoctor_Why_SkillMin>{PAWN} is the best candidate with {SKILL} {LEVEL}, but the recipe needs at least {MIN}.</ColonyDoctor_Why_SkillMin>
   <ColonyDoctor_Why_AreaRestriction>{PAWN} could do the bill, but their allowed area ({AREA}) keeps them away from the {BENCH}.</ColonyDoctor_Why_AreaRestriction>
   <ColonyDoctor_Why_WorkersUnavailable>{PAWN} could do the bill but is downed, drafted or having a mental break.</ColonyDoctor_Why_WorkersUnavailable>
-  <ColonyDoctor_Why_NoneOnMap>There is no {ING} on the map.</ColonyDoctor_Why_NoneOnMap>
-  <ColonyDoctor_Why_ExcludedByBillFilter>There is {ING} on the map, but the bill's ingredient filter excludes it.</ColonyDoctor_Why_ExcludedByBillFilter>
-  <ColonyDoctor_Why_Forbidden>The usable {ING} is forbidden or outside the worker's allowed area.</ColonyDoctor_Why_Forbidden>
-  <ColonyDoctor_Why_OutsideRadius>{COUNT} {ING} is available, but the nearest is {DIST} tiles from the bench. The bill only searches {RADIUS}.</ColonyDoctor_Why_OutsideRadius>
-  <ColonyDoctor_Why_Reserved>The usable {ING} is reserved by someone else.</ColonyDoctor_Why_Reserved>
-  <ColonyDoctor_Why_ReservedBy>The usable {ING} is reserved by {PAWN}.</ColonyDoctor_Why_ReservedBy>
+  <ColonyDoctor_Why_NoneOnMap>The map has no {ING}.</ColonyDoctor_Why_NoneOnMap>
+  <ColonyDoctor_Why_ExcludedByBillFilter>The map has {ING}, but the bill's ingredient filter excludes all of it.</ColonyDoctor_Why_ExcludedByBillFilter>
+  <ColonyDoctor_Why_Forbidden>Every usable stack of {ING} is forbidden or outside the worker's allowed area.</ColonyDoctor_Why_Forbidden>
+  <ColonyDoctor_Why_OutsideRadius>The map has {COUNT} {ING}, but the nearest is {DIST} tiles from the bench. The bill only searches {RADIUS}.</ColonyDoctor_Why_OutsideRadius>
+  <ColonyDoctor_Why_Reserved>Every usable stack of {ING} is reserved by someone else.</ColonyDoctor_Why_Reserved>
+  <ColonyDoctor_Why_ReservedBy>Every usable stack of {ING} is reserved by {PAWN}.</ColonyDoctor_Why_ReservedBy>
   <ColonyDoctor_Why_Unreachable>The usable {ING} can't be reached from the bench.</ColonyDoctor_Why_Unreachable>
   <ColonyDoctor_Why_NoStockpileAccepts>The bill takes {PRODUCT} to the best stockpile, but no stockpile accepts it, so finished items are dropped next to the bench.</ColonyDoctor_Why_NoStockpileAccepts>
   <ColonyDoctor_Why_SpecificStockpileRejects>The bill takes {PRODUCT} to {STOCKPILE}, which doesn't accept it, so finished items are dropped next to the bench.</ColonyDoctor_Why_SpecificStockpileRejects>
@@ -124,7 +124,7 @@
   <ColonyDoctor_Site_NotEnough>Not enough {MAT}: {SHORT} more needed, {USABLE} usable on the map.</ColonyDoctor_Site_NotEnough>
   <ColonyDoctor_Site_Forbidden>Every usable stack of {MAT} on the map is forbidden or outside allowed areas ({SHORT} short).</ColonyDoctor_Site_Forbidden>
   <ColonyDoctor_Site_MatUnreachable>The {MAT} on the map can't be reached from the site ({SHORT} short).</ColonyDoctor_Site_MatUnreachable>
-  <ColonyDoctor_Site_Reserved>The {MAT} on the map is reserved by other jobs ({SHORT} short).</ColonyDoctor_Site_Reserved>
+  <ColonyDoctor_Site_Reserved>Every usable stack of {MAT} on the map is reserved by other jobs ({SHORT} short).</ColonyDoctor_Site_Reserved>
 
   <ColonyDoctor_AlertConstructionLabel>Construction stalled ({COUNT})</ColonyDoctor_AlertConstructionLabel>
   <ColonyDoctor_AlertConstructionExplanation>These construction sites have been stalled for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertConstructionExplanation>

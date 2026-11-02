@@ -188,6 +188,10 @@ namespace ColonyDoctor.Dev
             Thing steel = ThingMaker.MakeThing(ThingDefOf.Steel);
             steel.stackCount = 75;
             GenSpawn.Spawn(steel, ring, map);
+            ThingDef walledMeat = DefDatabase<ThingDef>.GetNamedSilentFail("Meat_Muffalo") ?? ThingDefOf.Meat_Human;
+            Thing meatIn = ThingMaker.MakeThing(walledMeat);
+            meatIn.stackCount = 30;
+            GenSpawn.Spawn(meatIn, ring + new IntVec3(1, 0, 0), map);
             built.Add($"H1 steel walled off at {ring}");
 
             IntVec3 meatCell = origin + new IntVec3(6, 0, 0);
@@ -571,6 +575,91 @@ namespace ColonyDoctor.Dev
         }
 
         // ---- Helpers ---------------------------------------------------------------------------------------------
+
+/// <summary>
+        /// Extra scenarios (test colony only): X1 unpowered hydroponics basin, X2 forbidden wall with a deconstruct
+        /// order, X3 forbidden simple research bench for a project that needs no special bench, X4 first patient set
+        /// to No care.
+        /// </summary>
+        internal static void BuildExtraTest(Map map, IntVec3 origin)
+        {
+            var built = new List<string>();
+            IntVec3 o = origin + new IntVec3(-14, 0, -12);
+            ClearPlot(map, CellRect.FromLimits(o.x - 2, o.z - 2, o.x + 12, o.z + 8).ClipInsideMap(map));
+
+            ThingDef basinDef = DefDatabase<ThingDef>.GetNamedSilentFail("HydroponicsBasin");
+            ThingDef rice = DefDatabase<ThingDef>.GetNamedSilentFail("Plant_Rice");
+            if (basinDef != null && rice != null)
+            {
+                var basin = (Building_PlantGrower)Spawn(map, basinDef, o, basinDef.MadeFromStuff ? GenStuff.DefaultStuffFor(basinDef) : null);
+                basin.SetPlantDefToGrow(rice);
+                built.Add($"X1 unpowered hydroponics at {o}");
+            }
+
+            Thing wall = Spawn(map, ThingDefOf.Wall, o + new IntVec3(6, 0, 0), ThingDefOf.WoodLog);
+            wall.SetForbidden(true, false);
+            map.designationManager.AddDesignation(new Designation(wall, DesignationDefOf.Deconstruct));
+            built.Add($"X2 forbidden wall to deconstruct at {wall.Position}");
+
+            ThingDef benchDef = DefDatabase<ThingDef>.GetNamedSilentFail("SimpleResearchBench");
+            ResearchProjectDef proj = DefDatabase<ResearchProjectDef>.AllDefsListForReading
+                .FirstOrDefault(r => !r.IsFinished && r.requiredResearchBuilding == null && r.requiredResearchFacilities.NullOrEmpty()
+                                     && r.knowledgeCategory == null);
+            if (benchDef != null && proj != null)
+            {
+                Thing bench = Spawn(map, benchDef, o + new IntVec3(9, 0, 3), benchDef.MadeFromStuff ? GenStuff.DefaultStuffFor(benchDef) : null);
+                bench.SetForbidden(true, false);
+                Find.ResearchManager.SetCurrentProject(proj);
+                built.Add($"X3 forbidden {bench.LabelShort}, research {proj.label}");
+            }
+
+            Pawn patient = map.mapPawns.FreeColonistsSpawned.FirstOrDefault(p => HealthAIUtility.ShouldBeTendedNowByPlayer(p))
+                           ?? map.mapPawns.FreeColonistsSpawned.LastOrDefault();
+            if (patient != null && !HealthAIUtility.ShouldBeTendedNowByPlayer(patient))
+            {
+                BodyPartRecord leg = patient.health.hediffSet.GetNotMissingParts().FirstOrDefault(bp => bp.def.defName == "Leg");
+                Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, patient, leg);
+                cut.Severity = 4f;
+                patient.health.AddHediff(cut, leg);
+            }
+            if (patient?.playerSettings != null)
+            {
+                patient.playerSettings.medCare = MedicalCareCategory.NoCare;
+                built.Add($"X4 {patient.LabelShort} medical care set to No care");
+            }
+            Log.Message("[Colony Doctor] Extra test built:\n  " + string.Join("\n  ", built));
+        }
+
+        /// <summary>Load test (test colony only): about 200 more bills on existing benches and 300 loose stacks.</summary>
+        internal static void BuildBigTest(Map map)
+        {
+            int bills = 0;
+            foreach (Building b in map.listerBuildings.allBuildingsColonist.ToList())
+            {
+                if (!(b is IBillGiver giver) || giver.BillStack == null || b.def.AllRecipes.NullOrEmpty()) continue;
+                List<RecipeDef> recipes = b.def.AllRecipes.Where(r => r.AvailableNow).ToList();
+                for (int i = 0; i < 20 && recipes.Count > 0 && giver.BillStack.Count < 15; i++)
+                {
+                    var bill = BillUtility.MakeNewBill(recipes[i % recipes.Count], null);
+                    if (bill is Bill_Production bp) bp.repeatMode = BillRepeatModeDefOf.Forever;
+                    giver.BillStack.AddBill(bill);
+                    bills++;
+                }
+            }
+            ThingDef[] defs = { ThingDefOf.Steel, ThingDefOf.WoodLog, ThingDefOf.Cloth, ThingDefOf.ComponentIndustrial };
+            int stacks = 0;
+            foreach (IntVec3 c in GenRadial.RadialCellsAround(map.Center, 40f, false))
+            {
+                if (stacks >= 300) break;
+                if (!c.InBounds(map) || c.Fogged(map) || !c.Standable(map) || c.GetFirstItem(map) != null || c.GetFirstBuilding(map) != null) continue;
+                if ((c.x + c.z) % 5 != 0) continue;
+                Thing t = ThingMaker.MakeThing(defs[stacks % defs.Length]);
+                t.stackCount = Math.Min(10, t.def.stackLimit);
+                GenSpawn.Spawn(t, c, map);
+                stacks++;
+            }
+            Log.Message($"[Colony Doctor] Big test built: {bills} bills added, {stacks} loose stacks.");
+        }
 
         private static Thing Bench(Map map, string benchDef, IntVec3 at, string recipeDef, string billName)
             => Bench(map, benchDef, at, DefDatabase<RecipeDef>.GetNamed(recipeDef), billName);
