@@ -14,6 +14,8 @@ namespace ColonyDoctor
             Settings = GetSettings<ColonyDoctorSettings>();
             new Harmony(content.PackageIdPlayerFacing).PatchAll(typeof(ColonyDoctorMod).Assembly);
             JobFailReasonGuard.WarnIfUnavailable();
+            // Spec (problem-fixes): fixes and undo run as Multiplayer sync methods when the Multiplayer mod is active.
+            if (Multiplayer.API.MP.enabled) Multiplayer.API.MP.RegisterAll();
             Log.Message($"[Colony Doctor] Loaded {typeof(ColonyDoctorMod).Assembly.GetName().Version} (probes {(Sampling.ProbeScheduler.Enabled ? "on" : "off")}).");
         }
 

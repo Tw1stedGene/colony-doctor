@@ -31,7 +31,7 @@
   <ColonyDoctor_WhatBlocked>What blocked it</ColonyDoctor_WhatBlocked>
   <ColonyDoctor_OutputHeading>Where products go</ColonyDoctor_OutputHeading>
   <ColonyDoctor_Fixes>Fixes</ColonyDoctor_Fixes>
-  <ColonyDoctor_NoFix>No one-click fix yet. Use Jump to and check the bench and its bill.</ColonyDoctor_NoFix>
+  <ColonyDoctor_NoFix>No one-click fix for this. Use Jump to and check it in the game.</ColonyDoctor_NoFix>
   <ColonyDoctor_Ingredients>ingredients</ColonyDoctor_Ingredients>
 
   <!-- Reasons -->
@@ -120,4 +120,40 @@
 
   <ColonyDoctor_AlertConstructionLabel>Construction stalled ({COUNT})</ColonyDoctor_AlertConstructionLabel>
   <ColonyDoctor_AlertConstructionExplanation>These construction sites have been stalled for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertConstructionExplanation>
+
+  <!-- Fixes -->
+  <ColonyDoctor_FixConfirm>{CHANGE}\n\n{SIDE}</ColonyDoctor_FixConfirm>
+  <ColonyDoctor_AlreadyResolved>Already resolved: nothing was changed.</ColonyDoctor_AlreadyResolved>
+  <ColonyDoctor_FixApplied>Done: {CHANGE}</ColonyDoctor_FixApplied>
+  <ColonyDoctor_Undo>Undo</ColonyDoctor_Undo>
+  <ColonyDoctor_Undone>Change undone.</ColonyDoctor_Undone>
+  <ColonyDoctor_FixState_Monitoring>Monitoring after: {CHANGE}</ColonyDoctor_FixState_Monitoring>
+  <ColonyDoctor_FixState_Fixed>Fixed after: {CHANGE}</ColonyDoctor_FixState_Fixed>
+  <ColonyDoctor_RowMonitoring>Monitoring</ColonyDoctor_RowMonitoring>
+  <ColonyDoctor_RowFixed>Fixed</ColonyDoctor_RowFixed>
+  <ColonyDoctor_Fix_Radius>Widen radius</ColonyDoctor_Fix_Radius>
+  <ColonyDoctor_FixChange_Radius>Ingredient radius {FROM} → {TO}</ColonyDoctor_FixChange_Radius>
+  <ColonyDoctor_FixSide_Radius>Workers may walk further to fetch ingredients.</ColonyDoctor_FixSide_Radius>
+  <ColonyDoctor_Fix_SkillRange>Widen skill range</ColonyDoctor_Fix_SkillRange>
+  <ColonyDoctor_FixChange_SkillRange>Allowed skill {FROMMIN}–{FROMMAX} → {TOMIN}–{TOMAX}, so {PAWN} (skill {LEVEL}) can do it</ColonyDoctor_FixChange_SkillRange>
+  <ColonyDoctor_FixSide_SkillRange>Less skilled workers may make lower quality items.</ColonyDoctor_FixSide_SkillRange>
+  <ColonyDoctor_Fix_Restriction>Allow any worker</ColonyDoctor_Fix_Restriction>
+  <ColonyDoctor_FixChange_Restriction>Bill worker {FROM} → any worker</ColonyDoctor_FixChange_Restriction>
+  <ColonyDoctor_FixSide_Restriction>Whoever is free may take the bill, not only the one you chose.</ColonyDoctor_FixSide_Restriction>
+  <ColonyDoctor_AnyWorker>any worker</ColonyDoctor_AnyWorker>
+  <ColonyDoctor_AnySlave>any slave</ColonyDoctor_AnySlave>
+  <ColonyDoctor_AnyMech>any mechanoid</ColonyDoctor_AnyMech>
+  <ColonyDoctor_AnyNonMech>any non-mechanoid</ColonyDoctor_AnyNonMech>
+  <ColonyDoctor_Fix_DropOnFloor>Drop on floor</ColonyDoctor_Fix_DropOnFloor>
+  <ColonyDoctor_FixChange_DropOnFloor>Product goes to: {FROM} → drop on floor</ColonyDoctor_FixChange_DropOnFloor>
+  <ColonyDoctor_FixSide_DropOnFloor>Products pile up next to the bench.</ColonyDoctor_FixSide_DropOnFloor>
+  <ColonyDoctor_Fix_AllowIn>Allow in {WHERE}</ColonyDoctor_Fix_AllowIn>
+  <ColonyDoctor_FixChange_AllowIn>Allow {PRODUCT} in {WHERE}</ColonyDoctor_FixChange_AllowIn>
+  <ColonyDoctor_FixSide_AllowIn>{WHERE} will also take {PRODUCT} from elsewhere on the map.</ColonyDoctor_FixSide_AllowIn>
+  <ColonyDoctor_Fix_Unforbid>Unforbid materials</ColonyDoctor_Fix_Unforbid>
+  <ColonyDoctor_FixChange_Unforbid>Unforbid {STACKS} stack(s), {COUNT} {WHAT}, nearest at {WHERE}</ColonyDoctor_FixChange_Unforbid>
+  <ColonyDoctor_FixSide_Unforbid>Colonists may also use or haul these for other jobs.</ColonyDoctor_FixSide_Unforbid>
+  <ColonyDoctor_Fix_Priority>Raise work priority</ColonyDoctor_Fix_Priority>
+  <ColonyDoctor_FixChange_Priority>{PAWN}: {WORK} priority {FROM} → {TO} ({OTHER} is {OTHERPRI})</ColonyDoctor_FixChange_Priority>
+  <ColonyDoctor_FixSide_Priority>{PAWN} will do this before {OTHER}, so {OTHER} may wait longer.</ColonyDoctor_FixSide_Priority>
 </LanguageData>

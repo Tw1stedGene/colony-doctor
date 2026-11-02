@@ -44,9 +44,35 @@ namespace ColonyDoctor.Sampling
         /// <summary>Plain-language text for a stored diagnosis. UI only.</summary>
         public abstract string Explain(in Core.Diagnosis d);
 
-        /// <summary>Updates the competing-work tally after a sample (spec: Competing work tally).</summary>
-        internal void NoteSample(in Core.Diagnosis d)
+        // ---- Monitoring after a fix (spec: Monitoring) ---------------------------------------------------------------
+
+        public int FixedAtTick = -1;
+        public int FixWorkedTick = -1;
+        public string FixLabel;
+        public System.Action FixUndo;
+
+        public FixState StateAt(int now) => FixMonitor.StateAt(FixedAtTick, FixWorkedTick, now);
+
+        public void MarkFixed(int tick, string label, System.Action undo)
         {
+            FixedAtTick = tick;
+            FixWorkedTick = -1;
+            FixLabel = label;
+            FixUndo = undo;
+        }
+
+        public void ClearFix()
+        {
+            FixedAtTick = -1;
+            FixWorkedTick = -1;
+            FixLabel = null;
+            FixUndo = null;
+        }
+
+        /// <summary>Updates the competing-work tally and fix monitoring after a sample.</summary>
+        internal void NoteSample(int tick, in Core.Diagnosis d)
+        {
+            if (d.Reason == Reason.Working && FixedAtTick >= 0 && FixWorkedTick < 0 && tick > FixedAtTick) FixWorkedTick = tick;
             if (d.Reason == Reason.Working) Competing.Reset();
             else if (d.Reason == Reason.Outcompeted && d.SubjectB is Verse.WorkTypeDef wt)
                 Competing.Add(wt.index, Verse.DefDatabase<Verse.WorkTypeDef>.DefCount, d.SubjectA);

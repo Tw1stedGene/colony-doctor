@@ -40,6 +40,8 @@ namespace ColonyDoctor.UI
         private readonly List<Row> rows = new List<Row>();
         private readonly List<Reason> detailOrder = new List<Reason>(Reasons.Count);
         private readonly string[] detailText = new string[Reasons.Count];
+        private readonly Fixes.Fix[] detailFix = new Fixes.Fix[Reasons.Count];
+        private List<Fixes.Fix> outputFixes = new List<Fixes.Fix>();
 
         private TimeRange range = TimeRange.Day;
         private TrackedProblem selected;
@@ -153,8 +155,11 @@ namespace ColonyDoctor.UI
         private void BuildDetailText()
         {
             detailOrder.Clear();
+            outputFixes.Clear();
+            for (int r = 0; r < Reasons.Count; r++) detailFix[r] = null;
             Row row = SelectedRow();
             if (row == null) return;
+            if (row.Problem is TrackedBill tb) outputFixes = Fixes.FixCatalog.ForOutput(tb);
 
             for (int r = 0; r < Reasons.Count; r++)
             {
@@ -162,6 +167,7 @@ namespace ColonyDoctor.UI
                 if (reason == Reason.Suspended || row.Agg.Count(reason) == 0) continue;
                 detailOrder.Add(reason);
                 detailText[r] = row.Problem.Explain(in row.Problem.History.LastFor(reason));
+                if (Reasons.IsStalled(reason)) detailFix[r] = Fixes.FixCatalog.For(row.Problem, in row.Problem.History.LastFor(reason));
             }
             // Stalled reasons by share, Working last (as in the prototype).
             detailOrder.Sort((x, y) =>
@@ -261,7 +267,15 @@ namespace ColonyDoctor.UI
             GUI.color = ReasonStyle.Muted;
             Text.Font = GameFont.Tiny;
             Widgets.Label(new Rect(text.x, text.y + 20f, text.width, 16f), row.Location.Truncate(text.width));
-            if (row.Agg.Dominant.HasValue)
+            var fixState = row.Problem.StateAt(Find.TickManager.TicksGame);
+            if (fixState != FixState.None)
+            {
+                GUI.color = fixState == FixState.Fixed ? new Color(0.55f, 0.75f, 0.42f) : new Color(0.85f, 0.7f, 0.3f);
+                Widgets.Label(new Rect(text.x, text.y + 34f, text.width, 16f),
+                    (fixState == FixState.Fixed ? "ColonyDoctor_RowFixed" : "ColonyDoctor_RowMonitoring").Translate());
+                GUI.color = ReasonStyle.Muted;
+            }
+            else if (row.Agg.Dominant.HasValue)
             {
                 Reason dom = row.Agg.Dominant.Value;
                 Widgets.DrawBoxSolid(new Rect(text.x, text.y + 39f, 8f, 8f), ReasonStyle.ColorOf(dom));
@@ -370,6 +384,7 @@ namespace ColonyDoctor.UI
                     GUI.color = Color.white;
                     y += h;
                 }
+                y = FixButton(y + 4f, w, row, detailFix[(int)reason]);
                 y += 6f;
                 GUI.color = new Color(1f, 1f, 1f, 0.1f);
                 Widgets.DrawLineHorizontal(0f, y, w);
@@ -386,19 +401,56 @@ namespace ColonyDoctor.UI
                 float oh = Text.CalcHeight(note0, w - 18f);
                 Widgets.Label(new Rect(18f, y, w - 18f, oh), note0);
                 y += oh + 6f;
+                for (int i = 0; i < outputFixes.Count; i++) y = FixButton(y, w, row, outputFixes[i]);
             }
 
-            // Fixes: none in this change (spec: Detail panel).
+            // Fixes (spec: Detail panel, Monitoring).
             y = Heading(y + 8f, w, "ColonyDoctor_Fixes".Translate());
-            GUI.color = ReasonStyle.Muted;
-            string note = "ColonyDoctor_NoFix".Translate();
-            float nh = Text.CalcHeight(note, w);
-            Widgets.Label(new Rect(0f, y, w, nh), note);
-            GUI.color = Color.white;
-            y += nh + 8f;
+            var state = row.Problem.StateAt(Find.TickManager.TicksGame);
+            if (state != FixState.None)
+            {
+                string label = (state == FixState.Fixed ? "ColonyDoctor_FixState_Fixed" : "ColonyDoctor_FixState_Monitoring")
+                    .Translate(row.Problem.FixLabel.Named("CHANGE"));
+                float mh = Text.CalcHeight(label, w - 110f);
+                Widgets.Label(new Rect(0f, y, w - 110f, mh), label);
+                if (state == FixState.Monitoring && row.Problem.FixUndo != null
+                    && Widgets.ButtonText(new Rect(w - 100f, y, 100f, 28f), "ColonyDoctor_Undo".Translate()))
+                {
+                    FixFlow.Undo(row.Problem, row.Problem.FixUndo);
+                    BuildDetailText();
+                }
+                y += Mathf.Max(mh, 30f) + 6f;
+            }
+            if (!AnyFix())
+            {
+                GUI.color = ReasonStyle.Muted;
+                string note = "ColonyDoctor_NoFix".Translate();
+                float nh = Text.CalcHeight(note, w);
+                Widgets.Label(new Rect(0f, y, w, nh), note);
+                GUI.color = Color.white;
+                y += nh + 8f;
+            }
 
             detailHeight = y;
             Widgets.EndScrollView();
+        }
+
+        private bool AnyFix()
+        {
+            if (outputFixes.Count > 0) return true;
+            for (int i = 0; i < detailFix.Length; i++) if (detailFix[i] != null) return true;
+            return false;
+        }
+
+        private float FixButton(float y, float w, Row row, Fixes.Fix fix)
+        {
+            if (fix == null) return y;
+            Text.Font = GameFont.Small;
+            float bw = Mathf.Min(w - 18f, Text.CalcSize(fix.Button).x + 24f);
+            var btn = new Rect(18f, y, bw, 26f);
+            TooltipHandler.TipRegion(btn, fix.Change + "\n\n" + fix.SideEffect);
+            if (Widgets.ButtonText(btn, fix.Button)) FixFlow.Offer(row.Problem, fix);
+            return y + 30f;
         }
 
         private static float Heading(float y, float w, string label)

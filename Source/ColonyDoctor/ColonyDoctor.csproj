@@ -14,5 +14,14 @@
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4871" />
     <PackageReference Include="Lib.Harmony" Version="2.4.3" ExcludeAssets="runtime" />
+    <!-- Shipped in 1.6/Assemblies on purpose: the API assembly is inert without the Multiplayer mod. -->
+    <PackageReference Include="RimWorld.MultiplayerAPI" Version="0.6.0" />
   </ItemGroup>
+  <!-- Package DLLs are not copied (CopyLocalLockFileAssemblies=false); ship only the Multiplayer API. -->
+  <Target Name="CopyMultiplayerApi" AfterTargets="Build" BeforeTargets="DeployToRimWorld">
+    <ItemGroup>
+      <MpApi Include="@(ReferencePath)" Condition="'%(Filename)' == '0MultiplayerAPI'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MpApi)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
