@@ -3,8 +3,8 @@
   <ColonyDoctor_ModName>Colony Doctor</ColonyDoctor_ModName>
 
   <!-- Settings -->
-  <ColonyDoctor_SettingAlert>Show "stalled" alerts</ColonyDoctor_SettingAlert>
-  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled" and "Construction stalled" alerts on the right when something has been stalled for most of the last day.</ColonyDoctor_SettingAlertDesc>
+  <ColonyDoctor_SettingAlert>Show "stalled" and "idle" alerts</ColonyDoctor_SettingAlert>
+  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled", "Construction stalled" and "Colonists idle" alerts on the right when something has been stalled, or someone idle, for most of the last day.</ColonyDoctor_SettingAlertDesc>
   <ColonyDoctor_SettingProbes>Diagnose modded benches</ColonyDoctor_SettingProbes>
   <ColonyDoctor_SettingProbesDesc>Ask modded work givers why they can't do a bill. Always off while the Multiplayer mod is active.</ColonyDoctor_SettingProbesDesc>
 
@@ -12,6 +12,7 @@
   <ColonyDoctor_TabTitle>Bottlenecks</ColonyDoctor_TabTitle>
   <ColonyDoctor_Category_Bill>Bills</ColonyDoctor_Category_Bill>
   <ColonyDoctor_Category_Construction>Construction</ColonyDoctor_Category_Construction>
+  <ColonyDoctor_Category_Idle>Idle colonists</ColonyDoctor_Category_Idle>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -44,6 +45,7 @@
   <ColonyDoctor_Reason_Suspended>Suspended</ColonyDoctor_Reason_Suspended>
   <ColonyDoctor_Reason_Blocked>Blocked</ColonyDoctor_Reason_Blocked>
   <ColonyDoctor_Reason_Outcompeted>Outcompeted</ColonyDoctor_Reason_Outcompeted>
+  <ColonyDoctor_Reason_Idle>Idle</ColonyDoctor_Reason_Idle>
 
   <!-- Explanations -->
   <ColonyDoctor_Why_Working>Someone was working on this bill.</ColonyDoctor_Why_Working>
@@ -156,4 +158,20 @@
   <ColonyDoctor_Fix_Priority>Raise work priority</ColonyDoctor_Fix_Priority>
   <ColonyDoctor_FixChange_Priority>{PAWN}: {WORK} priority {FROM} → {TO} ({OTHER} is {OTHERPRI})</ColonyDoctor_FixChange_Priority>
   <ColonyDoctor_FixSide_Priority>{PAWN} will do this before {OTHER}, so {OTHER} may wait longer.</ColonyDoctor_FixSide_Priority>
+
+  <!-- Idle colonists -->
+  <ColonyDoctor_IdleWord>idle</ColonyDoctor_IdleWord>
+  <ColonyDoctor_RangeIdle>{RANGE}, {PCT}% idle while on duty</ColonyDoctor_RangeIdle>
+  <ColonyDoctor_NothingIdle>Nobody was idle while on duty in this range.</ColonyDoctor_NothingIdle>
+  <ColonyDoctor_NoWorkTypes>No work assigned</ColonyDoctor_NoWorkTypes>
+  <ColonyDoctor_AndMore>{FIRST} and {COUNT} more</ColonyDoctor_AndMore>
+  <ColonyDoctor_Idle_Busy>Busy with work.</ColonyDoctor_Idle_Busy>
+  <ColonyDoctor_Idle_NoWork>{PAWN} has no work type enabled. Turn some on in the Work tab.</ColonyDoctor_Idle_NoWork>
+  <ColonyDoctor_Idle_Blocked>All the work {PAWN} could do is blocked. Longest stalled: {PROBLEM} ({REASON}).</ColonyDoctor_Idle_Blocked>
+  <ColonyDoctor_Idle_BlockedHauling>All the work {PAWN} could do is blocked: the items waiting to be hauled are forbidden or already reserved.</ColonyDoctor_Idle_BlockedHauling>
+  <ColonyDoctor_Idle_Nothing>There was nothing to do in {PAWN}'s enabled work.</ColonyDoctor_Idle_Nothing>
+  <ColonyDoctor_Idle_NotTaken>There was {WORK} work, but {PAWN} didn't take it. It may need a skill or allowed area they lack, or be reserved by someone else.</ColonyDoctor_Idle_NotTaken>
+  <ColonyDoctor_Idle_Unseen>Colony Doctor can't yet see whether there was {WORK} work for {PAWN}.</ColonyDoctor_Idle_Unseen>
+  <ColonyDoctor_AlertIdleLabel>Colonists idle ({COUNT})</ColonyDoctor_AlertIdleLabel>
+  <ColonyDoctor_AlertIdleExplanation>These colonists were idle for at least half of their working time in the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertIdleExplanation>
 </LanguageData>

@@ -12,6 +12,7 @@ namespace ColonyDoctor.Core
         Suspended = 6,
         Blocked = 7,
         Outcompeted = 8,
+        Idle = 9,
     }
 
     public enum Detail : byte
@@ -60,6 +61,12 @@ namespace ColonyDoctor.Core
         // Construction: worker
         SkillTooLow,
 
+        // Idle colonists
+        IdleNoWork,
+        IdleWorkBlocked,
+        IdleNothingToDo,
+        IdleWorkNotTaken,
+
         // Unknown
         FailReasonText,
         Generic,
@@ -67,7 +74,7 @@ namespace ColonyDoctor.Core
 
     public static class Reasons
     {
-        public const int Count = 9;
+        public const int Count = 10;
         public const byte NoData = 255;
 
         /// <summary>Not working and not suspended: counts towards "stalled".</summary>

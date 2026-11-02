@@ -107,4 +107,13 @@ namespace ColonyDoctor.UI
             return site.Pieces.Count > 0 ? site.Pieces[0] : null;
         }
     }
+
+    /// <summary>"Colonists idle (N)" (spec: Colonists idle alert).</summary>
+    public class Alert_ColonistsIdle : Alert_StalledBase
+    {
+        protected override ProblemKind Kind => ProblemKind.Idle;
+        protected override string LabelKey => "ColonyDoctor_AlertIdleLabel";
+        protected override string ExplanationKey => "ColonyDoctor_AlertIdleExplanation";
+        protected override Thing CulpritOf(TrackedProblem problem) => ((TrackedPawn)problem).Pawn;
+    }
 }

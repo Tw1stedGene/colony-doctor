@@ -28,6 +28,9 @@ namespace ColonyDoctor.Sampling
         private readonly List<ConstructionSite> sites = new List<ConstructionSite>(16);
         private readonly List<ConstructionSite> removedSites = new List<ConstructionSite>();
         private readonly List<TrackedProblem> problems = new List<TrackedProblem>(80);
+        private readonly List<TrackedPawn> pawns = new List<TrackedPawn>(16);
+        private readonly Dictionary<Pawn, TrackedPawn> byPawn = new Dictionary<Pawn, TrackedPawn>(16);
+        private readonly IdleDiagnoser idleDiagnoser;
         private readonly BillDiagnoser diagnoser;
         private readonly ConstructionDiagnoser constructionDiagnoser;
         private readonly SiteDiscovery siteDiscovery;
@@ -59,6 +62,7 @@ namespace ColonyDoctor.Sampling
             diagnoser = new BillDiagnoser(map);
             constructionDiagnoser = new ConstructionDiagnoser(map, diagnoser.Reach);
             siteDiscovery = new SiteDiscovery(map);
+            idleDiagnoser = new IdleDiagnoser(map, this);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -98,8 +102,8 @@ namespace ColonyDoctor.Sampling
             if (t.IsGone) return;
             try
             {
-                Core.Diagnosis d = t is TrackedBill bill
-                    ? diagnoser.Diagnose(bill, tick)
+                Core.Diagnosis d = t is TrackedBill bill ? diagnoser.Diagnose(bill, tick)
+                    : t is TrackedPawn pawn ? idleDiagnoser.Diagnose(pawn, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -127,11 +131,13 @@ namespace ColonyDoctor.Sampling
             {
                 Log.ErrorOnce($"[Colony Doctor] Construction site discovery failed: {e}", 0x0C0D0C75);
             }
+            changed |= DiscoverPawns();
             if (!changed) return;
 
             problems.Clear();
             for (int i = 0; i < tracked.Count; i++) problems.Add(tracked[i]);
             for (int i = 0; i < sites.Count; i++) problems.Add(sites[i]);
+            for (int i = 0; i < pawns.Count; i++) problems.Add(pawns[i]);
             Version++;
         }
 
@@ -172,6 +178,37 @@ namespace ColonyDoctor.Sampling
             return changed;
         }
 
+        /// <summary>Spec: Tracked colonists. Free colonists (incl. slaves) on this map who can ever work.</summary>
+        private bool DiscoverPawns()
+        {
+            bool changed = false;
+            List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
+            for (int i = 0; i < colonists.Count; i++)
+            {
+                Pawn p = colonists[i];
+                if (p.workSettings == null || !p.workSettings.EverWork) continue;
+                if (!byPawn.TryGetValue(p, out TrackedPawn t))
+                {
+                    t = new TrackedPawn(p, map, nextPhase);
+                    nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+                    byPawn[p] = t;
+                    pawns.Add(t);
+                    changed = true;
+                }
+                t.SeenInDiscovery = discoveryCount;
+            }
+            for (int i = pawns.Count - 1; i >= 0; i--)
+            {
+                TrackedPawn t = pawns[i];
+                if (t.SeenInDiscovery == discoveryCount && !t.IsGone) continue;
+                byPawn.Remove(t.Pawn);
+                pawns.RemoveAt(i);
+                changed = true;
+            }
+            return changed;
+        }
+
+        internal IdleDiagnoser IdleDiagnoser => idleDiagnoser;
         internal BillDiagnoser Diagnoser => diagnoser;
         internal ConstructionDiagnoser ConstructionDiagnoser => constructionDiagnoser;
 

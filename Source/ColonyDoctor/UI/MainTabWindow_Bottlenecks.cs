@@ -22,7 +22,7 @@ namespace ColonyDoctor.UI
         private const int RefreshEveryFrames = 60;
 
         private static readonly TimeRange[] Ranges = { TimeRange.Hour, TimeRange.Day, TimeRange.Quadrum };
-        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction };
+        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle };
 
         /// <summary>Selected category; static so it is remembered while the game runs (spec: Construction category).</summary>
         public static ProblemKind Category = ProblemKind.Bill;
@@ -240,7 +240,7 @@ namespace ColonyDoctor.UI
             if (rows.Count == 0)
             {
                 GUI.color = ReasonStyle.Muted;
-                Widgets.Label(rect.ContractedBy(8f), shownMap == null ? "ColonyDoctor_NoMap".Translate() : "ColonyDoctor_NothingStalled".Translate());
+                Widgets.Label(rect.ContractedBy(8f), shownMap == null ? "ColonyDoctor_NoMap".Translate() : (Category == ProblemKind.Idle ? "ColonyDoctor_NothingIdle" : "ColonyDoctor_NothingStalled").Translate());
                 GUI.color = Color.white;
                 return;
             }
@@ -288,7 +288,7 @@ namespace ColonyDoctor.UI
             Widgets.Label(new Rect(pct.x, rect.y + 6f, pct.width, 30f), row.Agg.StalledPercent + "%");
             Text.Font = GameFont.Tiny;
             GUI.color = ReasonStyle.Muted;
-            Widgets.Label(new Rect(pct.x, rect.y + 34f, pct.width, 16f), "ColonyDoctor_Stalled".Translate());
+            Widgets.Label(new Rect(pct.x, rect.y + 34f, pct.width, 16f), (Category == ProblemKind.Idle ? "ColonyDoctor_IdleWord" : "ColonyDoctor_Stalled").Translate());
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -334,7 +334,7 @@ namespace ColonyDoctor.UI
 
             // Range and stalled percent.
             GUI.color = ReasonStyle.Muted;
-            Widgets.Label(new Rect(0f, y, w, 22f), "ColonyDoctor_RangeStalled".Translate(RangeLabel(range).Named("RANGE"), row.Agg.StalledPercent.Named("PCT")));
+            Widgets.Label(new Rect(0f, y, w, 22f), (Category == ProblemKind.Idle ? "ColonyDoctor_RangeIdle" : "ColonyDoctor_RangeStalled").Translate(RangeLabel(range).Named("RANGE"), row.Agg.StalledPercent.Named("PCT")));
             GUI.color = Color.white;
             y += 24f;
 

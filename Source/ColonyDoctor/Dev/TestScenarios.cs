@@ -85,6 +85,17 @@ namespace ColonyDoctor.Dev
                               $"stall={site.History.ContinuousStallTicks(now)}t lastWorked={site.LastWorkedTick}");
                 sb.AppendLine($"    says: {site.Explain(last)}" + Tally(site) + tracker.ConstructionDiagnoser.Describe(site));
             }
+            sb.AppendLine("[Colony Doctor] Idle colonists:");
+            foreach (Sampling.TrackedProblem p in tracker.Problems)
+            {
+                if (!(p is Sampling.TrackedPawn tp)) continue;
+                var agg = new Core.HistoryAggregate();
+                p.History.Aggregate(now, Core.TimeRange.Day, agg);
+                Core.Diagnosis last = p.History.LastFor(Core.Reason.Idle);
+                sb.AppendLine($"  {tp.Title}: now={p.History.LastReason} idleDay={agg.StalledPercent}% lastIdle={last.Detail} " +
+                              $"open={last.ValueA} unknown={last.ValueB} blocked={last.ValueC} work=[{tp.Location}]");
+                if (last.Reason == Core.Reason.Idle) sb.AppendLine("    says: " + tp.Explain(last));
+            }
             Log.Message(sb.ToString());
         }
 
