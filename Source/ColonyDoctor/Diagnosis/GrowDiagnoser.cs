@@ -123,11 +123,24 @@ namespace ColonyDoctor.Diagnosis
                 workers = skilled;
             }
 
+            // The first pending cell stands for the grower; if nobody may enter it, any cell someone may enter does.
+            IntVec3 target = g.FirstPending;
+            if (!AreaGate.AnyAllowed(workers, target))
+            {
+                target = IntVec3.Invalid;
+                foreach (IntVec3 c in g.Grower.Cells)
+                {
+                    if (!AreaGate.AnyAllowed(workers, c)) continue;
+                    target = c;
+                    break;
+                }
+                if (!target.IsValid) return AreaGate.Diagnosis(workers, WorkTypeDefOf.Growing);
+            }
             bool reached = false;
             for (int i = 0; i < workers.Count && !reached; i++)
             {
                 Pawn p = workers[i];
-                reached = map.reachability.CanReach(p.Position, g.FirstPending, PathEndMode.Touch, TraverseParms.For(p, Danger.Some));
+                reached = AreaGate.Allowed(p, target) && map.reachability.CanReach(p.Position, target, PathEndMode.Touch, TraverseParms.For(p, Danger.Some));
             }
             if (!reached) return Core.Diagnosis.Of(Reason.NoEligibleWorker, Detail.Unreachable);
 

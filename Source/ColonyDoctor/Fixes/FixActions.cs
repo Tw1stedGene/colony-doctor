@@ -93,6 +93,15 @@ namespace ColonyDoctor.Fixes
             }
         }
 
+        /// <summary>Sets the pawn's allowed area on its current map (null = unrestricted).</summary>
+        [SyncMethod]
+        public static void SetArea(Pawn pawn, Area area)
+        {
+            if (pawn?.playerSettings == null || !pawn.Spawned) return;
+            if (area != null && area.Map != pawn.Map) return;
+            pawn.playerSettings.AreaRestrictionInPawnCurrentMap = area;
+        }
+
         [SyncMethod]
         public static void SetPriority(Pawn pawn, WorkTypeDef workType, int priority)
         {

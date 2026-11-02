@@ -79,8 +79,8 @@ namespace ColonyDoctor.Sampling
             constructionDiagnoser = new ConstructionDiagnoser(map, diagnoser.Reach);
             siteDiscovery = new SiteDiscovery(map);
             idleDiagnoser = new IdleDiagnoser(map, this);
-            haulDiagnoser = new HaulDiagnoser(map, diagnoser.Reach);
             workerPool = new WorkerPool(map);
+            haulDiagnoser = new HaulDiagnoser(map, diagnoser.Reach, workerPool);
             growDiagnoser = new GrowDiagnoser(map, workerPool);
             orderDiagnoser = new OrderDiagnoser(map, workerPool);
             patientDiagnoser = new PatientDiagnoser(map, workerPool, diagnoser.Reach);
@@ -361,6 +361,9 @@ namespace ColonyDoctor.Sampling
             Add("Uninstall", "Uninstall", "Uninstall");
             Add("SmoothFloor", "SmoothFloor", "ConstructSmoothFloors");
             Add("SmoothWall", "SmoothWall", "ConstructSmoothWalls");
+            Add("Hunt", "Hunt", "HunterHunt");
+            Add("Tame", "Tame", "Tame");
+            Add("Slaughter", "Slaughter", "Slaughter");
         }
 
         /// <summary>Spec: Order groups. Designations grouped by order type, with first-seen ticks.</summary>

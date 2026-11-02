@@ -218,6 +218,9 @@
   <ColonyDoctor_Order_Uninstall>Uninstall</ColonyDoctor_Order_Uninstall>
   <ColonyDoctor_Order_SmoothFloor>Smooth floor</ColonyDoctor_Order_SmoothFloor>
   <ColonyDoctor_Order_SmoothWall>Smooth wall</ColonyDoctor_Order_SmoothWall>
+  <ColonyDoctor_Order_Hunt>Hunt</ColonyDoctor_Order_Hunt>
+  <ColonyDoctor_Order_Tame>Tame</ColonyDoctor_Order_Tame>
+  <ColonyDoctor_Order_Slaughter>Slaughter</ColonyDoctor_Order_Slaughter>
   <ColonyDoctor_OrderNone>No orders right now</ColonyDoctor_OrderNone>
   <ColonyDoctor_OrderFresh>All placed within the last hour</ColonyDoctor_OrderFresh>
   <ColonyDoctor_OrderCounts>{COUNT} orders, {WAITING} waiting over an hour</ColonyDoctor_OrderCounts>
@@ -228,6 +231,15 @@
   <ColonyDoctor_Order_Disabled>Nobody has {WORK} enabled in the Work tab.</ColonyDoctor_Order_Disabled>
   <ColonyDoctor_Order_Unavailable>Everyone who does {WORK} is downed, drafted or in a mental state.</ColonyDoctor_Order_Unavailable>
   <ColonyDoctor_Fix_UnforbidTargets>Unforbid targets</ColonyDoctor_Fix_UnforbidTargets>
+  <ColonyDoctor_Order_NoHuntingWeapon>No available hunter carries a ranged weapon, or the only ones that do also wear a shield. Hunters need a ranged weapon and no shield.</ColonyDoctor_Order_NoHuntingWeapon>
+  <ColonyDoctor_Order_TameSkill>Taming the {ANIMAL} needs Animals {NEED}. The best available handler, {PAWN}, has {HAVE}.</ColonyDoctor_Order_TameSkill>
+
+  <!-- Area restrictions -->
+  <ColonyDoctor_Area_One>{PAWN} could do this ({WORK}), but their allowed area ({AREA}) doesn't include it.</ColonyDoctor_Area_One>
+  <ColonyDoctor_Area_Many>Everyone who could do this ({WORK}) is kept out by their allowed area: {PAWN} ({AREA}) and {OTHERS} more.</ColonyDoctor_Area_Many>
+  <ColonyDoctor_Fix_AllowEverywhere>Allow everywhere</ColonyDoctor_Fix_AllowEverywhere>
+  <ColonyDoctor_FixChange_AllowEverywhere>{PAWN}: allowed area {FROM} → Unrestricted</ColonyDoctor_FixChange_AllowEverywhere>
+  <ColonyDoctor_FixSide_AllowEverywhere>{PAWN} may walk into danger outside {FROM}, for example during raids.</ColonyDoctor_FixSide_AllowEverywhere>
   <ColonyDoctor_FixChange_UnforbidTargets>Unforbid {COUNT} forbidden target(s) of {ORDERS}</ColonyDoctor_FixChange_UnforbidTargets>
 
   <!-- Patients -->

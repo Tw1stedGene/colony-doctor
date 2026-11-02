@@ -75,6 +75,13 @@ namespace ColonyDoctor.Core
         MedicalCareOff,
         PatientNotInBed,
 
+        // Orders: animals
+        NoHuntingWeapon,
+
+        // Research
+        NoResearchBench,
+        FacilityMissing,
+
         // Unknown
         FailReasonText,
         Generic,

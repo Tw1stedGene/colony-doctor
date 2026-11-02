@@ -18,6 +18,11 @@ namespace ColonyDoctor.UI
                 case Reason.NoEligibleWorker:
                     switch (d.Detail)
                     {
+                        case Detail.AreaRestriction: return AreaText.For(in d);
+                        case Detail.NoHuntingWeapon: return "ColonyDoctor_Order_NoHuntingWeapon".Translate();
+                        case Detail.SkillTooLow:
+                            return "ColonyDoctor_Order_TameSkill".Translate(((d.SubjectB as Pawn)?.LabelShort ?? "?").Named("ANIMAL"), d.PieceTotal.Named("NEED"),
+                                ((d.SubjectA as Pawn)?.LabelShort ?? "?").Named("PAWN"), d.PieceCount.Named("HAVE"));
                         case Detail.Unreachable: return "ColonyDoctor_Order_Unreachable".Translate();
                         case Detail.NoColonists: return "ColonyDoctor_Haul_NoColonists".Translate();
                         case Detail.Incapable: return "ColonyDoctor_Order_Incapable".Translate(work.Named("WORK"));

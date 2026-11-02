@@ -27,6 +27,7 @@ namespace ColonyDoctor.UI
                 case Reason.NoEligibleWorker:
                     switch (d.Detail)
                     {
+                        case Detail.AreaRestriction: return AreaText.For(in d);
                         case Detail.Unreachable: return "ColonyDoctor_Haul_Unreachable".Translate(thing.Named("THING"));
                         case Detail.NoColonists: return "ColonyDoctor_Haul_NoColonists".Translate();
                         case Detail.Incapable: return "ColonyDoctor_Haul_Incapable".Translate();

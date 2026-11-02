@@ -19,10 +19,10 @@ namespace ColonyDoctor.Diagnosis
         /// <summary>Tick each loose item was first seen needing hauling; rebuilt at every discovery.</summary>
         internal Dictionary<Thing, int> FirstSeen = new Dictionary<Thing, int>(256);
 
-        private readonly List<Pawn> available = new List<Pawn>(16);
+        private readonly WorkerPool pool;
+        private List<Pawn> available;
         private Detail workerDetail;
         private bool anyAvailable;
-        private int haulersCycle = -1;
 
         private readonly Dictionary<ThingDef, bool> roomByDef = new Dictionary<ThingDef, bool>(32);
         private int roomCycle = -1;
@@ -30,10 +30,11 @@ namespace ColonyDoctor.Diagnosis
 
         private static WorkGiverDef haulGeneral, haulCorpses;
 
-        public HaulDiagnoser(Map map, ReachCache reach)
+        public HaulDiagnoser(Map map, ReachCache reach, WorkerPool pool)
         {
             this.map = map;
             this.reach = reach;
+            this.pool = pool;
         }
 
         public Core.Diagnosis Diagnose(TrackedHaulGroup g, int tick)
@@ -65,9 +66,10 @@ namespace ColonyDoctor.Diagnosis
             }
             if (beingHauled || g.WaitingStacks == 0) return Core.Diagnosis.Of(Reason.Working);
 
-            EnsureHaulers(tick);
+            available = pool.Available(WorkTypeDefOf.Hauling, tick, out workerDetail);
+            anyAvailable = available.Count > 0;
             System.Array.Clear(counts, 0, counts.Length);
-            int noAccept = 0, full = 0, reachable = 0;
+            int noAccept = 0, full = 0, reachable = 0, outsideArea = 0;
             Thing unreachable = null;
             for (int i = 0; i < items.Count; i++)
             {
@@ -87,6 +89,13 @@ namespace ColonyDoctor.Diagnosis
                 if (!anyAvailable)
                 {
                     counts[(int)Reason.NoEligibleWorker]++;
+                    continue;
+                }
+                if (!AreaGate.AnyAllowed(available, t.Position))
+                {
+                    counts[(int)Reason.NoEligibleWorker]++;
+                    outsideArea++;
+                    if (unreachable == null) unreachable = t;
                     continue;
                 }
                 if (!AnyHaulerReaches(t))
@@ -114,6 +123,11 @@ namespace ColonyDoctor.Diagnosis
                     d.SubjectA = g.Def;
                     break;
                 case Reason.NoEligibleWorker:
+                    if (anyAvailable && outsideArea * 2 >= counts[(int)r])
+                    {
+                        d = AreaGate.Diagnosis(available, WorkTypeDefOf.Hauling);
+                        break;
+                    }
                     d = Core.Diagnosis.Of(r, anyAvailable ? Detail.Unreachable : workerDetail);
                     d.SubjectA = unreachable;
                     d.SubjectC = WorkTypeDefOf.Hauling;
@@ -141,45 +155,12 @@ namespace ColonyDoctor.Diagnosis
 
         // ---- Haulers (spec: hauler decision) -------------------------------------------------------------------------
 
-        private void EnsureHaulers(int tick)
-        {
-            int cycle = tick / GameTime.TicksPerSample;
-            if (cycle == haulersCycle) return;
-            haulersCycle = cycle;
-            available.Clear();
-            int pawns = 0, capable = 0, enabled = 0;
-            Collect(map.mapPawns.FreeColonistsSpawned, ref pawns, ref capable, ref enabled);
-            Collect(map.mapPawns.SpawnedColonyMechs, ref pawns, ref capable, ref enabled);
-            anyAvailable = available.Count > 0;
-            workerDetail = pawns == 0 ? Detail.NoColonists
-                : capable == 0 ? Detail.Incapable
-                : enabled == 0 ? Detail.WorkTypeDisabled
-                : Detail.WorkersUnavailable;
-        }
-
-        private void Collect(List<Pawn> list, ref int pawns, ref int capable, ref int enabled)
-        {
-            WorkTypeDef hauling = WorkTypeDefOf.Hauling;
-            for (int i = 0; i < list.Count; i++)
-            {
-                Pawn p = list[i];
-                if (p.workSettings == null || !p.workSettings.EverWork) continue;
-                pawns++;
-                if (p.WorkTypeIsDisabled(hauling)) continue;
-                capable++;
-                if (!p.workSettings.WorkIsActive(hauling)) continue;
-                enabled++;
-                if (p.Downed || p.Drafted || p.InMentalState) continue;
-                available.Add(p);
-            }
-        }
-
         private bool AnyHaulerReaches(Thing t)
         {
             for (int i = 0; i < available.Count; i++)
             {
                 Pawn p = available[i];
-                if (reach.CanReach(p, p.Position, t, PathEndMode.ClosestTouch)) return true;
+                if (AreaGate.Allowed(p, t.Position) && reach.CanReach(p, p.Position, t, PathEndMode.ClosestTouch)) return true;
             }
             return false;
         }

@@ -20,6 +20,7 @@ namespace ColonyDoctor.UI
                         case Detail.SkillTooLow:
                             return "ColonyDoctor_Grow_Skill".Translate(plant.Named("PLANT"), d.PieceTotal.Named("NEED"),
                                 ((d.SubjectA as Pawn)?.LabelShort ?? "?").Named("PAWN"), d.PieceCount.Named("HAVE"));
+                        case Detail.AreaRestriction: return AreaText.For(in d);
                         case Detail.Unreachable: return "ColonyDoctor_Grow_Unreachable".Translate();
                         case Detail.NoColonists: return "ColonyDoctor_Haul_NoColonists".Translate();
                         case Detail.Incapable: return "ColonyDoctor_Grow_Incapable".Translate();

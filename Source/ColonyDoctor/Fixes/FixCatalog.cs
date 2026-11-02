@@ -25,6 +25,7 @@ namespace ColonyDoctor.Fixes
         {
             try
             {
+                if (d.Reason == Reason.NoEligibleWorker && d.Detail == Detail.AreaRestriction) return AllowEverywhere(problem, d);
                 if (problem is TrackedBill tb) return ForBill(tb, d);
                 if (problem is ConstructionSite site) return ForSite(site, d);
                 if (problem is TrackedHaulGroup haul) return ForHaul(haul, d);
@@ -283,6 +284,29 @@ namespace ColonyDoctor.Fixes
         }
 
         // ---- Shared ---------------------------------------------------------------------------------------------
+
+        /// <summary>Spec: Allow everywhere fix. Clears the named worker's allowed area on their map.</summary>
+        private static Fix AllowEverywhere(TrackedProblem p, Core.Diagnosis d)
+        {
+            if (!(d.SubjectA is Pawn pawn) || !pawn.Spawned || pawn.playerSettings == null) return null;
+            Area area = pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap;
+            if (area == null) return null;
+            string from = area.Label;
+            return new Fix
+            {
+                Button = "ColonyDoctor_Fix_AllowEverywhere".Translate(),
+                Change = "ColonyDoctor_FixChange_AllowEverywhere".Translate(pawn.LabelShort.Named("PAWN"), from.Named("FROM")),
+                SideEffect = "ColonyDoctor_FixSide_AllowEverywhere".Translate(pawn.LabelShort.Named("PAWN"), from.Named("FROM")),
+                StillNeeded = () => !p.IsGone && pawn.Spawned && pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap != null
+                                    && StillDetail(p, Reason.NoEligibleWorker, Detail.AreaRestriction),
+                Apply = () =>
+                {
+                    Area old = pawn.playerSettings.EffectiveAreaRestrictionInPawnCurrentMap;
+                    FixActions.SetArea(pawn, null);
+                    return () => FixActions.SetArea(pawn, old);
+                },
+            };
+        }
 
         private static Fix Unforbid(TrackedProblem p, List<Thing> stacks, float need, Func<Thing, float> value, string what,
             Reason r, Detail detail)
