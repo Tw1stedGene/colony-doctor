@@ -8,6 +8,7 @@ namespace ColonyDoctor.Sampling
         Construction = 1,
         Idle = 2,
         Hauling = 3,
+        Growing = 4,
     }
 
     /// <summary>

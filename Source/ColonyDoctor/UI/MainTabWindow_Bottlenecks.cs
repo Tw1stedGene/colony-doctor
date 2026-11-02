@@ -22,7 +22,7 @@ namespace ColonyDoctor.UI
         private const int RefreshEveryFrames = 60;
 
         private static readonly TimeRange[] Ranges = { TimeRange.Hour, TimeRange.Day, TimeRange.Quadrum };
-        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling };
+        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling, ProblemKind.Growing };
 
         /// <summary>Selected category; static so it is remembered while the game runs (spec: Construction category).</summary>
         public static ProblemKind Category = ProblemKind.Bill;
@@ -197,23 +197,32 @@ namespace ColonyDoctor.UI
             Widgets.Label(new Rect(rect.x, rect.y, 200f, rect.height), "ColonyDoctor_TabTitle".Translate());
             Text.Font = GameFont.Small;
 
-            // spec: Construction category. Bills | Construction.
+            // spec: categories as segments; spec: Range dropdown on the right.
+            const float rangeW = 130f;
+            float catX = rect.x + 150f;
+            float catW = Mathf.Min(110f, (rect.xMax - rangeW - 8f - catX) / Categories.Length);
+            Text.Font = Categories.Length > 5 ? GameFont.Tiny : GameFont.Small;
             for (int i = 0; i < Categories.Length; i++)
             {
-                var cat = new Rect(rect.x + 160f + i * 104f, rect.y + 6f, 104f, 28f);
+                var cat = new Rect(catX + i * catW, rect.y + 6f, catW, 28f);
                 if (Segment(cat, ("ColonyDoctor_Category_" + Categories[i]).Translate(), Category == Categories[i]))
                 {
                     Category = Categories[i];
                     detailScroll = Vector2.zero;
                 }
             }
+            Text.Font = GameFont.Small;
 
-            float w = 104f;
-            float x = rect.xMax - w * Ranges.Length;
-            for (int i = 0; i < Ranges.Length; i++)
+            var rangeRect = new Rect(rect.xMax - rangeW, rect.y + 6f, rangeW, 28f);
+            if (Widgets.ButtonText(rangeRect, RangeLabel(range) + " ▾"))
             {
-                var r = new Rect(x + i * w, rect.y + 6f, w, 28f);
-                if (Segment(r, RangeLabel(Ranges[i]), range == Ranges[i])) range = Ranges[i];
+                var options = new List<FloatMenuOption>();
+                for (int i = 0; i < Ranges.Length; i++)
+                {
+                    TimeRange r = Ranges[i];
+                    options.Add(new FloatMenuOption(RangeLabel(r), () => range = r));
+                }
+                Find.WindowStack.Add(new FloatMenu(options));
             }
             Text.Anchor = TextAnchor.UpperLeft;
         }

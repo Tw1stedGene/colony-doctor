@@ -54,6 +54,7 @@ namespace ColonyDoctor.Diagnosis
             // Work types we can see but that start empty.
             Set(WorkTypeDefOf.Hauling, Presence.None);
             Set(WorkTypeDefOf.Construction, Presence.None);
+            Set(WorkTypeDefOf.Growing, Presence.None);
             for (int i = 0; i < billOnlyTypes.Count; i++) Set(billOnlyTypes[i], Presence.None);
             Set(cleaning, Presence.None);
             Set(mining, Presence.None);
@@ -139,6 +140,7 @@ namespace ColonyDoctor.Diagnosis
         {
             if (p is ConstructionSite) return WorkTypeDefOf.Construction;
             if (p is TrackedHaulGroup h) return h.Items.Count > 0 ? WorkTypeDefOf.Hauling : null;
+            if (p is TrackedGrower g) return g.ToSow + g.ToHarvest > 0 ? WorkTypeDefOf.Growing : null;
             if (p is TrackedBill b)
             {
                 return b.UsesProbe ? b.Bill.recipe.requiredGiverWorkType : BillWorkGivers.For(b.Bench, b.Bill)?.workType;

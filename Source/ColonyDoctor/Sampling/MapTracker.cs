@@ -34,6 +34,10 @@ namespace ColonyDoctor.Sampling
         private readonly Dictionary<ThingDef, TrackedHaulGroup> byDef = new Dictionary<ThingDef, TrackedHaulGroup>(16);
         private Dictionary<Thing, int> spareFirstSeen = new Dictionary<Thing, int>(256);
         private readonly HaulDiagnoser haulDiagnoser;
+        private readonly WorkerPool workerPool;
+        private readonly GrowDiagnoser growDiagnoser;
+        private readonly List<TrackedGrower> growers = new List<TrackedGrower>(8);
+        private readonly Dictionary<IPlantToGrowSettable, TrackedGrower> byGrower = new Dictionary<IPlantToGrowSettable, TrackedGrower>(8);
         private readonly IdleDiagnoser idleDiagnoser;
         private readonly BillDiagnoser diagnoser;
         private readonly ConstructionDiagnoser constructionDiagnoser;
@@ -68,6 +72,8 @@ namespace ColonyDoctor.Sampling
             siteDiscovery = new SiteDiscovery(map);
             idleDiagnoser = new IdleDiagnoser(map, this);
             haulDiagnoser = new HaulDiagnoser(map, diagnoser.Reach);
+            workerPool = new WorkerPool(map);
+            growDiagnoser = new GrowDiagnoser(map, workerPool);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -110,6 +116,7 @@ namespace ColonyDoctor.Sampling
                 Core.Diagnosis d = t is TrackedBill bill ? diagnoser.Diagnose(bill, tick)
                     : t is TrackedPawn pawn ? idleDiagnoser.Diagnose(pawn, tick)
                     : t is TrackedHaulGroup haul ? haulDiagnoser.Diagnose(haul, tick)
+                    : t is TrackedGrower grower ? growDiagnoser.Diagnose(grower, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -146,6 +153,7 @@ namespace ColonyDoctor.Sampling
             {
                 Log.ErrorOnce($"[Colony Doctor] Hauling discovery failed: {e}", 0x0C0D0C76);
             }
+            changed |= DiscoverGrowers();
             if (!changed) return;
 
             problems.Clear();
@@ -153,6 +161,7 @@ namespace ColonyDoctor.Sampling
             for (int i = 0; i < sites.Count; i++) problems.Add(sites[i]);
             for (int i = 0; i < pawns.Count; i++) problems.Add(pawns[i]);
             for (int i = 0; i < haulGroups.Count; i++) problems.Add(haulGroups[i]);
+            for (int i = 0; i < growers.Count; i++) problems.Add(growers[i]);
             Version++;
         }
 
@@ -271,6 +280,48 @@ namespace ColonyDoctor.Sampling
             return changed;
         }
 
+        /// <summary>Spec: Growers. Player growing zones and plant grower buildings.</summary>
+        private bool DiscoverGrowers()
+        {
+            bool changed = false;
+            List<Zone> zones = map.zoneManager.AllZones;
+            for (int i = 0; i < zones.Count; i++)
+            {
+                if (zones[i] is Zone_Growing z) changed |= SeeGrower(z);
+            }
+            List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                if (buildings[i] is Building_PlantGrower b) changed |= SeeGrower(b);
+            }
+            for (int i = growers.Count - 1; i >= 0; i--)
+            {
+                TrackedGrower t = growers[i];
+                if (t.SeenInDiscovery == discoveryCount && !t.IsGone) continue;
+                byGrower.Remove(t.Grower);
+                growers.RemoveAt(i);
+                changed = true;
+            }
+            return changed;
+        }
+
+        private bool SeeGrower(IPlantToGrowSettable g)
+        {
+            bool added = false;
+            if (!byGrower.TryGetValue(g, out TrackedGrower t))
+            {
+                t = new TrackedGrower(g, map, nextPhase);
+                nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+                byGrower[g] = t;
+                growers.Add(t);
+                added = true;
+            }
+            t.SeenInDiscovery = discoveryCount;
+            return added;
+        }
+
+        internal WorkerPool WorkerPool => workerPool;
+        public IReadOnlyList<TrackedGrower> Growers => growers;
         internal HaulDiagnoser HaulDiagnoser => haulDiagnoser;
         public IReadOnlyList<TrackedHaulGroup> HaulGroups => haulGroups;
         internal IdleDiagnoser IdleDiagnoser => idleDiagnoser;

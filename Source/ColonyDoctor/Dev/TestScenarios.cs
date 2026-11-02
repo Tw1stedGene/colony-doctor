@@ -107,6 +107,17 @@ namespace ColonyDoctor.Dev
                               $"oldest={g.Oldest?.Position}");
                 if (g.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
             }
+            sb.AppendLine("[Colony Doctor] Growers:");
+            foreach (Sampling.TrackedGrower g in tracker.Growers)
+            {
+                var agg = new Core.HistoryAggregate();
+                g.History.Aggregate(now, Core.TimeRange.Day, agg);
+                Core.Diagnosis last = g.History.LastFor(g.History.LastReason);
+                sb.AppendLine($"  {g.Title}: sow={g.ToSow} harvest={g.ToHarvest} offSeason={g.OffSeason} now={g.History.LastReason}/{last.Detail} " +
+                              $"stalledDay={agg.StalledPercent}% pendingSince={g.PendingSince} lastWorked={g.LastWorkedTick}");
+                if (g.History.LastReason != Core.Reason.Working && g.History.LastReason != Core.Reason.Suspended)
+                    sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
+            }
             Log.Message(sb.ToString());
         }
 

@@ -14,6 +14,7 @@
   <ColonyDoctor_Category_Construction>Construction</ColonyDoctor_Category_Construction>
   <ColonyDoctor_Category_Idle>Idle colonists</ColonyDoctor_Category_Idle>
   <ColonyDoctor_Category_Hauling>Hauling</ColonyDoctor_Category_Hauling>
+  <ColonyDoctor_Category_Growing>Growing</ColonyDoctor_Category_Growing>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -195,4 +196,15 @@
   <ColonyDoctor_AlertHaulingExplanation>Items of these types have been left lying around for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertHaulingExplanation>
   <ColonyDoctor_AlertRottingLabel>Food rotting uncollected ({COUNT})</ColonyDoctor_AlertRottingLabel>
   <ColonyDoctor_AlertRottingExplanation>Nobody is hauling these, and some stacks will rot within a day at the current temperature. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertRottingExplanation>
+
+  <!-- Growing -->
+  <ColonyDoctor_GrowPending>{SOW} to sow, {HARVEST} to harvest</ColonyDoctor_GrowPending>
+  <ColonyDoctor_GrowCells>{COUNT} cells</ColonyDoctor_GrowCells>
+  <ColonyDoctor_Grow_Working>Being sown or harvested, nothing to do, or the work has been waiting under an hour.</ColonyDoctor_Grow_Working>
+  <ColonyDoctor_Grow_Unpowered>The grower can't take {PLANT} right now. It may need power.</ColonyDoctor_Grow_Unpowered>
+  <ColonyDoctor_Grow_Skill>Sowing {PLANT} needs Plants {NEED}. The best available grower, {PAWN}, has {HAVE}.</ColonyDoctor_Grow_Skill>
+  <ColonyDoctor_Grow_Unreachable>No available grower can reach it.</ColonyDoctor_Grow_Unreachable>
+  <ColonyDoctor_Grow_Incapable>Nobody in the colony is capable of growing.</ColonyDoctor_Grow_Incapable>
+  <ColonyDoctor_Grow_Disabled>Nobody has Growing enabled in the Work tab.</ColonyDoctor_Grow_Disabled>
+  <ColonyDoctor_Grow_Unavailable>Everyone who grows is downed, drafted or in a mental state.</ColonyDoctor_Grow_Unavailable>
 </LanguageData>
