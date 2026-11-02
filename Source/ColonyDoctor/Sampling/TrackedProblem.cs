@@ -11,6 +11,7 @@ namespace ColonyDoctor.Sampling
         Growing = 4,
         Orders = 5,
         Patients = 6,
+        Research = 7,
     }
 
     /// <summary>

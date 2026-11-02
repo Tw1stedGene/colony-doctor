@@ -136,6 +136,14 @@ namespace ColonyDoctor.Dev
                               $"stall={t.History.ContinuousStallTicks(now)}t inBed={t.Pawn.InBed()} downed={t.Pawn.Downed}");
                 if (t.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + t.Explain(last) + Tally(t));
             }
+            sb.AppendLine("[Colony Doctor] Research:");
+            if (tracker.Research is Sampling.TrackedResearch r)
+            {
+                Core.Diagnosis last = r.History.LastFor(r.History.LastReason);
+                sb.AppendLine($"  {r.Title} ({r.Location}): now={r.History.LastReason}/{last.Detail} waitSince={r.WaitSince} " +
+                              $"lastWorked={r.LastWorkedTick} bench={r.Bench?.LabelShort ?? "-"}");
+                if (r.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + r.Explain(last) + Tally(r));
+            }
             Log.Message(sb.ToString());
         }
 

@@ -38,6 +38,8 @@ namespace ColonyDoctor.Sampling
         private readonly GrowDiagnoser growDiagnoser;
         private readonly OrderDiagnoser orderDiagnoser;
         private readonly PatientDiagnoser patientDiagnoser;
+        private readonly ResearchDiagnoser researchDiagnoser;
+        private TrackedResearch research;
         private readonly List<TrackedPatient> patients = new List<TrackedPatient>(8);
         private readonly Dictionary<Pawn, TrackedPatient> byPatient = new Dictionary<Pawn, TrackedPatient>(8);
         private readonly List<TrackedOrderGroup> orderGroups = new List<TrackedOrderGroup>(8);
@@ -84,6 +86,7 @@ namespace ColonyDoctor.Sampling
             growDiagnoser = new GrowDiagnoser(map, workerPool);
             orderDiagnoser = new OrderDiagnoser(map, workerPool);
             patientDiagnoser = new PatientDiagnoser(map, workerPool, diagnoser.Reach);
+            researchDiagnoser = new ResearchDiagnoser(map, workerPool, diagnoser.Reach);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -129,6 +132,7 @@ namespace ColonyDoctor.Sampling
                     : t is TrackedGrower grower ? growDiagnoser.Diagnose(grower, tick)
                     : t is TrackedOrderGroup order ? orderDiagnoser.Diagnose(order, tick)
                     : t is TrackedPatient patient ? patientDiagnoser.Diagnose(patient, tick)
+                    : t is TrackedResearch res ? researchDiagnoser.Diagnose(res, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -175,6 +179,7 @@ namespace ColonyDoctor.Sampling
             {
                 Log.ErrorOnce($"[Colony Doctor] Orders discovery failed: {e}", 0x0C0D0C77);
             }
+            changed |= DiscoverResearch();
             if (!changed) return;
 
             problems.Clear();
@@ -185,6 +190,7 @@ namespace ColonyDoctor.Sampling
             for (int i = 0; i < growers.Count; i++) problems.Add(growers[i]);
             for (int i = 0; i < orderGroups.Count; i++) problems.Add(orderGroups[i]);
             for (int i = 0; i < patients.Count; i++) problems.Add(patients[i]);
+            if (research != null) problems.Add(research);
             Version++;
         }
 
@@ -442,6 +448,46 @@ namespace ColonyDoctor.Sampling
             return changed;
         }
 
+        /// <summary>
+        /// Spec: Research tracking. The current project, on the home map with the most free colonists (ties by lowest
+        /// map id), so a colony with several maps lists it once.
+        /// </summary>
+        private bool DiscoverResearch()
+        {
+            ResearchProjectDef project = Find.ResearchManager.GetProject();
+            bool want = project != null && !project.IsFinished && IsResearchMap();
+            bool removed = false;
+            if (research != null && (!want || research.Project != project || research.IsGone))
+            {
+                research = null;
+                removed = true;
+            }
+            if (!want || research != null) return removed;
+            research = new TrackedResearch(project, map, nextPhase);
+            nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+            return true;
+        }
+
+        private bool IsResearchMap()
+        {
+            Map best = null;
+            int bestCount = -1;
+            List<Map> maps = Find.Maps;
+            for (int i = 0; i < maps.Count; i++)
+            {
+                Map m = maps[i];
+                if (!m.IsPlayerHome) continue;
+                int count = m.mapPawns.FreeColonistsSpawnedCount;
+                if (count > bestCount || (count == bestCount && best != null && m.uniqueID < best.uniqueID))
+                {
+                    best = m;
+                    bestCount = count;
+                }
+            }
+            return best == map;
+        }
+
+        public TrackedResearch Research => research;
         public IReadOnlyList<TrackedPatient> Patients => patients;
         public IReadOnlyList<TrackedOrderGroup> OrderGroups => orderGroups;
         internal WorkerPool WorkerPool => workerPool;

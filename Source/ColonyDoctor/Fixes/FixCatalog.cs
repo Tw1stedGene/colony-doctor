@@ -31,6 +31,7 @@ namespace ColonyDoctor.Fixes
                 if (problem is TrackedHaulGroup haul) return ForHaul(haul, d);
                 if ((problem is TrackedGrower || problem is TrackedPatient) && d.Reason == Reason.Outcompeted) return Priority(problem, d);
                 if (problem is TrackedOrderGroup order) return ForOrders(order, d);
+                if (problem is TrackedResearch research) return ForResearch(research, d);
             }
             catch (Exception e)
             {
@@ -279,6 +280,27 @@ namespace ColonyDoctor.Fixes
                     List<Thing> changed = targets.Where(t => t.Spawned && t.IsForbidden(Faction.OfPlayer)).ToList();
                     FixActions.SetForbidden(changed, false);
                     return () => FixActions.SetForbidden(changed, true);
+                },
+            };
+        }
+
+        // ---- Research (spec: Research reason) ------------------------------------------------------------------
+
+        private static Fix ForResearch(TrackedResearch r, Core.Diagnosis d)
+        {
+            if (d.Reason == Reason.Outcompeted) return Priority(r, d);
+            if (d.Reason != Reason.Blocked || d.Detail != Detail.Forbidden || !(d.SubjectA is Thing bench) || !bench.Spawned) return null;
+            var targets = new List<Thing> { bench };
+            return new Fix
+            {
+                Button = "ColonyDoctor_Fix_UnforbidBench".Translate(),
+                Change = "ColonyDoctor_FixChange_UnforbidBench".Translate(bench.LabelShort.Named("BENCH")),
+                SideEffect = "ColonyDoctor_FixSide_Unforbid".Translate(),
+                StillNeeded = () => !r.IsGone && bench.Spawned && bench.IsForbidden(Faction.OfPlayer) && StillDetail(r, Reason.Blocked, Detail.Forbidden),
+                Apply = () =>
+                {
+                    FixActions.SetForbidden(targets, false);
+                    return () => FixActions.SetForbidden(targets, true);
                 },
             };
         }

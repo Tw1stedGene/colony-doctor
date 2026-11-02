@@ -22,7 +22,7 @@ namespace ColonyDoctor.UI
         private const int RefreshEveryFrames = 60;
 
         private static readonly TimeRange[] Ranges = { TimeRange.Hour, TimeRange.Day, TimeRange.Quadrum };
-        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling, ProblemKind.Growing, ProblemKind.Orders, ProblemKind.Patients };
+        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling, ProblemKind.Growing, ProblemKind.Orders, ProblemKind.Patients, ProblemKind.Research };
 
         /// <summary>Selected category; static so it is remembered while the game runs (spec: Construction category).</summary>
         public static ProblemKind Category = ProblemKind.Bill;

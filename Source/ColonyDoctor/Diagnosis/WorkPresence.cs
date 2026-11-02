@@ -137,6 +137,7 @@ namespace ColonyDoctor.Diagnosis
             if (p is TrackedHaulGroup h) return h.Items.Count > 0 ? WorkTypeDefOf.Hauling : null;
             if (p is TrackedPatient pt) return pt.NeedSince >= 0 ? WorkTypeDefOf.Doctor : null;
             if (p is TrackedOrderGroup o) return o.Items.Count > 0 ? o.Giver.workType : null;
+            if (p is TrackedResearch) return research;
             if (p is TrackedGrower g) return g.ToSow + g.ToHarvest > 0 ? WorkTypeDefOf.Growing : null;
             if (p is TrackedBill b)
             {

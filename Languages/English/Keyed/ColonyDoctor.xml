@@ -17,6 +17,7 @@
   <ColonyDoctor_Category_Growing>Growing</ColonyDoctor_Category_Growing>
   <ColonyDoctor_Category_Orders>Orders</ColonyDoctor_Category_Orders>
   <ColonyDoctor_Category_Patients>Patients</ColonyDoctor_Category_Patients>
+  <ColonyDoctor_Category_Research>Research</ColonyDoctor_Category_Research>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -233,6 +234,18 @@
   <ColonyDoctor_Fix_UnforbidTargets>Unforbid targets</ColonyDoctor_Fix_UnforbidTargets>
   <ColonyDoctor_Order_NoHuntingWeapon>No available hunter carries a ranged weapon, or the only ones that do also wear a shield. Hunters need a ranged weapon and no shield.</ColonyDoctor_Order_NoHuntingWeapon>
   <ColonyDoctor_Order_TameSkill>Taming the {ANIMAL} needs Animals {NEED}. The best available handler, {PAWN}, has {HAVE}.</ColonyDoctor_Order_TameSkill>
+
+  <!-- Research -->
+  <ColonyDoctor_ResearchProgress>{PCT}% done</ColonyDoctor_ResearchProgress>
+  <ColonyDoctor_Research_Working>Someone is researching it, or it has only just stopped.</ColonyDoctor_Research_Working>
+  <ColonyDoctor_Research_NeedBench>{PROJECT} can only be researched at a {BENCH}, and the colony has none on this map.</ColonyDoctor_Research_NeedBench>
+  <ColonyDoctor_Research_NoBench>There is no research bench on this map.</ColonyDoctor_Research_NoBench>
+  <ColonyDoctor_Research_Facility>{PROJECT} needs a {FACILITY} linked to the {BENCH}.</ColonyDoctor_Research_Facility>
+  <ColonyDoctor_Research_Unpowered>The {BENCH} has no power, and this project needs a powered bench.</ColonyDoctor_Research_Unpowered>
+  <ColonyDoctor_Research_Forbidden>The {BENCH} is forbidden. Colonists won't research at a forbidden bench.</ColonyDoctor_Research_Forbidden>
+  <ColonyDoctor_Research_Unreachable>No available researcher can reach a suitable research bench.</ColonyDoctor_Research_Unreachable>
+  <ColonyDoctor_Fix_UnforbidBench>Unforbid bench</ColonyDoctor_Fix_UnforbidBench>
+  <ColonyDoctor_FixChange_UnforbidBench>Unforbid the {BENCH}</ColonyDoctor_FixChange_UnforbidBench>
 
   <!-- Area restrictions -->
   <ColonyDoctor_Area_One>{PAWN} could do this ({WORK}), but their allowed area ({AREA}) doesn't include it.</ColonyDoctor_Area_One>
