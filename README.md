@@ -4,6 +4,8 @@
 
 **Why isn't work getting done? Colony Doctor tells you.** A RimWorld mod.
 
+**[Get it on the Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3832550513)** · [Download from Releases](https://github.com/Tw1stedGene/colony-doctor/releases/latest)
+
 You queued the bill three days ago. The room is still a blueprint, the steel is still lying in the
 sun and the field was never sown. Colony Doctor watches the work in your colony over time and tells
 you, in plain language, what has been holding each piece up: a bench without power, nobody allowed
@@ -120,7 +122,7 @@ while. Click one to open the tab on that category.
 You need **RimWorld 1.6** and **[Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077)**.
 No DLCs are needed.
 
-1. **Get the mod.** Subscribe on the Steam Workshop, or download the mod zip from
+1. **Get the mod.** Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3832550513), or download the mod zip from
    [Releases](https://github.com/Tw1stedGene/colony-doctor/releases) and unzip it into your RimWorld
    `Mods` folder.
 2. **Enable it.** In RimWorld, open **Mods**, turn on **Harmony** and **Colony Doctor** (Colony
