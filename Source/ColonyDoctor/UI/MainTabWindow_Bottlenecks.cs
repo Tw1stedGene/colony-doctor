@@ -22,7 +22,7 @@ namespace ColonyDoctor.UI
         private const int RefreshEveryFrames = 60;
 
         private static readonly TimeRange[] Ranges = { TimeRange.Hour, TimeRange.Day, TimeRange.Quadrum };
-        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling, ProblemKind.Growing, ProblemKind.Orders };
+        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling, ProblemKind.Growing, ProblemKind.Orders, ProblemKind.Patients };
 
         /// <summary>Selected category; static so it is remembered while the game runs (spec: Construction category).</summary>
         public static ProblemKind Category = ProblemKind.Bill;
@@ -275,7 +275,7 @@ namespace ColonyDoctor.UI
             Widgets.Label(new Rect(text.x, text.y, text.width, 22f), row.Title.Truncate(text.width));
             GUI.color = ReasonStyle.Muted;
             Text.Font = GameFont.Tiny;
-            if (row.Problem is TrackedHaulGroup hg && hg.Rotting > 0) GUI.color = ReasonStyle.SeverityHigh;
+            if ((row.Problem is TrackedHaulGroup hg && hg.Rotting > 0) || (row.Problem is TrackedPatient tp && tp.Bleeding)) GUI.color = ReasonStyle.SeverityHigh;
             Widgets.Label(new Rect(text.x, text.y + 20f, text.width, 16f), row.Location.Truncate(text.width));
             GUI.color = ReasonStyle.Muted;
             var fixState = row.Problem.StateAt(Find.TickManager.TicksGame);

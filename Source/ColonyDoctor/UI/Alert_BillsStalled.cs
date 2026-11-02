@@ -188,4 +188,63 @@ namespace ColonyDoctor.UI
             }
         }
     }
+
+    /// <summary>"Patients untended (N)" (spec: Patients untended alert).</summary>
+    public class Alert_PatientsUntended : Alert
+    {
+        private const int MinStallTicks = 1250;
+        private readonly List<Thing> culprits = new List<Thing>();
+        private int computedAtCycle = -1;
+        private Map computedFor;
+
+        public Alert_PatientsUntended()
+        {
+            defaultPriority = AlertPriority.High;
+        }
+
+        public override AlertReport GetReport()
+        {
+            if (!ColonyDoctorMod.Settings.showStalledBillsAlert) return AlertReport.Inactive;
+            Recompute();
+            return culprits.Count > 0 ? AlertReport.CulpritsAre(culprits) : AlertReport.Inactive;
+        }
+
+        public override string GetLabel() => "ColonyDoctor_AlertPatientsLabel".Translate(culprits.Count.Named("COUNT"));
+
+        public override TaggedString GetExplanation()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("ColonyDoctor_AlertPatientsExplanation".Translate());
+            sb.AppendLine();
+            for (int i = 0; i < culprits.Count; i++) sb.AppendLine("  - " + culprits[i].LabelShortCap);
+            return sb.ToString().TrimEnd();
+        }
+
+        protected override void OnClick()
+        {
+            MainTabWindow_Bottlenecks.Category = ProblemKind.Patients;
+            MainButtonDef tab = DefDatabase<MainButtonDef>.GetNamedSilentFail("ColonyDoctor_Bottlenecks");
+            if (tab != null) Find.MainTabsRoot.SetCurrentTab(tab, true);
+        }
+
+        private void Recompute()
+        {
+            Map map = Find.CurrentMap;
+            int now = Find.TickManager.TicksGame;
+            int cycle = now / GameTime.TicksPerSample;
+            if (cycle == computedAtCycle && map == computedFor) return;
+            computedAtCycle = cycle;
+            computedFor = map;
+            culprits.Clear();
+            MapTracker tracker = MapTracker.Existing(map);
+            if (tracker == null) return;
+            IReadOnlyList<TrackedPatient> list = tracker.Patients;
+            for (int i = 0; i < list.Count; i++)
+            {
+                TrackedPatient t = list[i];
+                if (t.IsGone || !t.History.IsCurrentlyStalled || t.History.ContinuousStallTicks(now) < MinStallTicks) continue;
+                culprits.Add(t.Pawn);
+            }
+        }
+    }
 }

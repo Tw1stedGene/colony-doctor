@@ -10,6 +10,7 @@ namespace ColonyDoctor.Sampling
         Hauling = 3,
         Growing = 4,
         Orders = 5,
+        Patients = 6,
     }
 
     /// <summary>

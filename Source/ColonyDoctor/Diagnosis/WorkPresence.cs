@@ -96,7 +96,6 @@ namespace ColonyDoctor.Diagnosis
             if (cleaning != null && map.listerFilthInHomeArea.FilthInHomeArea.Count > 0) Set(cleaning, Presence.Open);
             if (hunting != null && map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.Hunt)) Set(hunting, Presence.Open);
             if (research != null && Find.ResearchManager.GetProject() != null && HasResearchBench()) Set(research, Presence.Open);
-            if (doctor != null && AnyNeedsTending()) Set(doctor, Presence.Open);
             if (firefighter != null && AnyHomeFire()) Set(firefighter, Presence.Open);
         }
 
@@ -136,6 +135,7 @@ namespace ColonyDoctor.Diagnosis
         {
             if (p is ConstructionSite) return WorkTypeDefOf.Construction;
             if (p is TrackedHaulGroup h) return h.Items.Count > 0 ? WorkTypeDefOf.Hauling : null;
+            if (p is TrackedPatient pt) return pt.NeedSince >= 0 ? WorkTypeDefOf.Doctor : null;
             if (p is TrackedOrderGroup o) return o.Items.Count > 0 ? o.Giver.workType : null;
             if (p is TrackedGrower g) return g.ToSow + g.ToHarvest > 0 ? WorkTypeDefOf.Growing : null;
             if (p is TrackedBill b)
@@ -151,16 +151,6 @@ namespace ColonyDoctor.Diagnosis
             for (int i = 0; i < buildings.Count; i++)
             {
                 if (buildings[i] is Building_ResearchBench) return true;
-            }
-            return false;
-        }
-
-        private bool AnyNeedsTending()
-        {
-            List<Pawn> pawns = map.mapPawns.FreeColonistsAndPrisonersSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                if (HealthAIUtility.ShouldBeTendedNowByPlayer(pawns[i])) return true;
             }
             return false;
         }

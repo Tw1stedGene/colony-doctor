@@ -71,6 +71,10 @@ namespace ColonyDoctor.Core
         // Hauling: no storage
         StorageFull,
 
+        // Patients
+        MedicalCareOff,
+        PatientNotInBed,
+
         // Unknown
         FailReasonText,
         Generic,

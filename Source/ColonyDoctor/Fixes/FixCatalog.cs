@@ -28,7 +28,7 @@ namespace ColonyDoctor.Fixes
                 if (problem is TrackedBill tb) return ForBill(tb, d);
                 if (problem is ConstructionSite site) return ForSite(site, d);
                 if (problem is TrackedHaulGroup haul) return ForHaul(haul, d);
-                if (problem is TrackedGrower && d.Reason == Reason.Outcompeted) return Priority(problem, d);
+                if ((problem is TrackedGrower || problem is TrackedPatient) && d.Reason == Reason.Outcompeted) return Priority(problem, d);
                 if (problem is TrackedOrderGroup order) return ForOrders(order, d);
             }
             catch (Exception e)

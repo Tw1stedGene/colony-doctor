@@ -37,6 +37,9 @@ namespace ColonyDoctor.Sampling
         private readonly WorkerPool workerPool;
         private readonly GrowDiagnoser growDiagnoser;
         private readonly OrderDiagnoser orderDiagnoser;
+        private readonly PatientDiagnoser patientDiagnoser;
+        private readonly List<TrackedPatient> patients = new List<TrackedPatient>(8);
+        private readonly Dictionary<Pawn, TrackedPatient> byPatient = new Dictionary<Pawn, TrackedPatient>(8);
         private readonly List<TrackedOrderGroup> orderGroups = new List<TrackedOrderGroup>(8);
         private readonly Dictionary<DesignationDef, TrackedOrderGroup> byOrderKind = new Dictionary<DesignationDef, TrackedOrderGroup>(8);
         private Dictionary<Designation, int> spareOrderSeen = new Dictionary<Designation, int>(256);
@@ -80,6 +83,7 @@ namespace ColonyDoctor.Sampling
             workerPool = new WorkerPool(map);
             growDiagnoser = new GrowDiagnoser(map, workerPool);
             orderDiagnoser = new OrderDiagnoser(map, workerPool);
+            patientDiagnoser = new PatientDiagnoser(map, workerPool, diagnoser.Reach);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -124,6 +128,7 @@ namespace ColonyDoctor.Sampling
                     : t is TrackedHaulGroup haul ? haulDiagnoser.Diagnose(haul, tick)
                     : t is TrackedGrower grower ? growDiagnoser.Diagnose(grower, tick)
                     : t is TrackedOrderGroup order ? orderDiagnoser.Diagnose(order, tick)
+                    : t is TrackedPatient patient ? patientDiagnoser.Diagnose(patient, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -161,6 +166,7 @@ namespace ColonyDoctor.Sampling
                 Log.ErrorOnce($"[Colony Doctor] Hauling discovery failed: {e}", 0x0C0D0C76);
             }
             changed |= DiscoverGrowers();
+            changed |= DiscoverPatients();
             try
             {
                 changed |= DiscoverOrders();
@@ -178,6 +184,7 @@ namespace ColonyDoctor.Sampling
             for (int i = 0; i < haulGroups.Count; i++) problems.Add(haulGroups[i]);
             for (int i = 0; i < growers.Count; i++) problems.Add(growers[i]);
             for (int i = 0; i < orderGroups.Count; i++) problems.Add(orderGroups[i]);
+            for (int i = 0; i < patients.Count; i++) problems.Add(patients[i]);
             Version++;
         }
 
@@ -406,6 +413,33 @@ namespace ColonyDoctor.Sampling
             return changed;
         }
 
+        /// <summary>Spec: Patients. Humanlike colonists, slaves and prisoners once they need tending.</summary>
+        private bool DiscoverPatients()
+        {
+            bool changed = false;
+            List<Pawn> list = map.mapPawns.FreeColonistsAndPrisonersSpawned;
+            for (int i = 0; i < list.Count; i++)
+            {
+                Pawn p = list[i];
+                if (!p.RaceProps.Humanlike || byPatient.ContainsKey(p) || !PatientDiagnoser.NeedsTending(p)) continue;
+                var t = new TrackedPatient(p, map, nextPhase);
+                nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+                byPatient[p] = t;
+                patients.Add(t);
+                changed = true;
+            }
+            for (int i = patients.Count - 1; i >= 0; i--)
+            {
+                TrackedPatient t = patients[i];
+                if (!t.IsGone && (t.Pawn.IsFreeColonist || t.Pawn.IsPrisonerOfColony || t.Pawn.IsSlaveOfColony)) continue;
+                byPatient.Remove(t.Pawn);
+                patients.RemoveAt(i);
+                changed = true;
+            }
+            return changed;
+        }
+
+        public IReadOnlyList<TrackedPatient> Patients => patients;
         public IReadOnlyList<TrackedOrderGroup> OrderGroups => orderGroups;
         internal WorkerPool WorkerPool => workerPool;
         public IReadOnlyList<TrackedGrower> Growers => growers;

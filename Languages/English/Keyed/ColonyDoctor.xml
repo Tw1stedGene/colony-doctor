@@ -4,7 +4,7 @@
 
   <!-- Settings -->
   <ColonyDoctor_SettingAlert>Show Colony Doctor alerts</ColonyDoctor_SettingAlert>
-  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled", "Construction stalled", "Colonists idle", "Hauling stalled" and "Food rotting uncollected" alerts on the right when something has been stalled, or someone idle, for most of the last day.</ColonyDoctor_SettingAlertDesc>
+  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled", "Construction stalled", "Colonists idle", "Hauling stalled", "Food rotting uncollected" and "Patients untended" alerts on the right when something has been stalled, or someone idle, for most of the last day.</ColonyDoctor_SettingAlertDesc>
   <ColonyDoctor_SettingProbes>Diagnose modded benches</ColonyDoctor_SettingProbes>
   <ColonyDoctor_SettingProbesDesc>Ask modded work givers why they can't do a bill. Always off while the Multiplayer mod is active.</ColonyDoctor_SettingProbesDesc>
 
@@ -16,6 +16,7 @@
   <ColonyDoctor_Category_Hauling>Hauling</ColonyDoctor_Category_Hauling>
   <ColonyDoctor_Category_Growing>Growing</ColonyDoctor_Category_Growing>
   <ColonyDoctor_Category_Orders>Orders</ColonyDoctor_Category_Orders>
+  <ColonyDoctor_Category_Patients>Patients</ColonyDoctor_Category_Patients>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -228,4 +229,21 @@
   <ColonyDoctor_Order_Unavailable>Everyone who does {WORK} is downed, drafted or in a mental state.</ColonyDoctor_Order_Unavailable>
   <ColonyDoctor_Fix_UnforbidTargets>Unforbid targets</ColonyDoctor_Fix_UnforbidTargets>
   <ColonyDoctor_FixChange_UnforbidTargets>Unforbid {COUNT} forbidden target(s) of {ORDERS}</ColonyDoctor_FixChange_UnforbidTargets>
+
+  <!-- Patients -->
+  <ColonyDoctor_PatientColonist>Colonist</ColonyDoctor_PatientColonist>
+  <ColonyDoctor_PatientSlave>Slave</ColonyDoctor_PatientSlave>
+  <ColonyDoctor_PatientPrisoner>Prisoner</ColonyDoctor_PatientPrisoner>
+  <ColonyDoctor_PatientBleeding>bleeding, death in {TIME}</ColonyDoctor_PatientBleeding>
+  <ColonyDoctor_Patient_Working>Tended, being tended, or needs nothing right now.</ColonyDoctor_Patient_Working>
+  <ColonyDoctor_Patient_NoCare>{PAWN}'s medical care is set to "No care". Doctors won't tend them until it is changed in the Health tab.</ColonyDoctor_Patient_NoCare>
+  <ColonyDoctor_Patient_DownedNotInBed>{PAWN} is down and not in a bed. Doctors tend people in bed, so someone must carry them to one first. Check there is a free bed they may use.</ColonyDoctor_Patient_DownedNotInBed>
+  <ColonyDoctor_Patient_UpNotInBed>{PAWN} is up and about. Doctors only tend people lying in bed; they rest in bed on their own if bed rest is allowed for them.</ColonyDoctor_Patient_UpNotInBed>
+  <ColonyDoctor_Patient_Unreachable>No available doctor can reach {PAWN}.</ColonyDoctor_Patient_Unreachable>
+  <ColonyDoctor_Patient_Incapable>Nobody in the colony is capable of doctoring.</ColonyDoctor_Patient_Incapable>
+  <ColonyDoctor_Patient_Disabled>Nobody has Doctor enabled in the Work tab.</ColonyDoctor_Patient_Disabled>
+  <ColonyDoctor_Patient_Unavailable>Everyone who doctors is downed, drafted or in a mental state.</ColonyDoctor_Patient_Unavailable>
+  <ColonyDoctor_Patient_OnlySelf>{PAWN} is the only doctor available, and self-tend is off for them.</ColonyDoctor_Patient_OnlySelf>
+  <ColonyDoctor_AlertPatientsLabel>Patients untended ({COUNT})</ColonyDoctor_AlertPatientsLabel>
+  <ColonyDoctor_AlertPatientsExplanation>These people have needed tending for a while and no doctor has come. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertPatientsExplanation>
 </LanguageData>

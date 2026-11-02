@@ -128,6 +128,14 @@ namespace ColonyDoctor.Dev
                               $"stalledDay={agg.StalledPercent}% lastWorked={g.LastWorkedTick} giver={g.Giver.defName}");
                 if (g.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
             }
+            sb.AppendLine("[Colony Doctor] Patients:");
+            foreach (Sampling.TrackedPatient t in tracker.Patients)
+            {
+                Core.Diagnosis last = t.History.LastFor(t.History.LastReason);
+                sb.AppendLine($"  {t.Title} ({t.Location}): now={t.History.LastReason}/{last.Detail} needSince={t.NeedSince} " +
+                              $"stall={t.History.ContinuousStallTicks(now)}t inBed={t.Pawn.InBed()} downed={t.Pawn.Downed}");
+                if (t.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + t.Explain(last) + Tally(t));
+            }
             Log.Message(sb.ToString());
         }
 
