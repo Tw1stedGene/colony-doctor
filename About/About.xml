@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Colony Doctor</name>
-  <author>jevgenijsstebakovs</author>
-  <packageId>jevgenijsstebakovs.colonydoctor</packageId>
+  <author>Tw1stedGene</author>
+  <packageId>tw1stedgene.colonydoctor</packageId>
+  <url>https://github.com/Tw1stedGene/colony-doctor</url>
+  <modVersion>0.1.0</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Tells you why work isn't getting done. Tracks stalled bills over time and explains what blocks them: missing materials, no eligible worker, bench problems or nowhere to store the product.
+  <description>Why isn't work getting done? Colony Doctor tells you.
 
-Read-only: diagnosis never changes your colony.</description>
+Colony Doctor watches your bills and construction sites over time and explains, in plain language, what has been holding each one up. A new Bottlenecks tab lists everything that's stalled, worst first, over the last hour, day or quadrum, with a timeline, a breakdown of the reasons and Jump to.
+
+What it can tell you:
+- Bench problem: no power, out of fuel, broken down, the work spot is blocked, or no one can reach the bench.
+- No eligible worker: nobody has the work type enabled or is capable of it, the bill's worker restriction or skill range excludes everyone, or an allowed area keeps them away.
+- Blocked: a plant, item, building or rock is in the way of a construction site.
+- Materials missing: none on the map, excluded by the bill's filter, forbidden, outside the ingredient radius, reserved or unreachable.
+- Waiting for a worker: nothing blocks it, but nobody has started yet.
+
+"Bills stalled" and "Construction stalled" alerts tell you when something has been stuck for at least half of the last day.
+
+Read-only: Colony Doctor never changes your colony, and nothing is written to your save, so you can add or remove it mid-game. Requires Harmony.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

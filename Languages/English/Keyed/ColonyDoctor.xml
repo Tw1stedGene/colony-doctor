@@ -3,8 +3,8 @@
   <ColonyDoctor_ModName>Colony Doctor</ColonyDoctor_ModName>
 
   <!-- Settings -->
-  <ColonyDoctor_SettingAlert>Show "Bills stalled" alert</ColonyDoctor_SettingAlert>
-  <ColonyDoctor_SettingAlertDesc>Show an alert on the right when bills have been stalled for most of the last day.</ColonyDoctor_SettingAlertDesc>
+  <ColonyDoctor_SettingAlert>Show "stalled" alerts</ColonyDoctor_SettingAlert>
+  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled" and "Construction stalled" alerts on the right when something has been stalled for most of the last day.</ColonyDoctor_SettingAlertDesc>
   <ColonyDoctor_SettingProbes>Diagnose modded benches</ColonyDoctor_SettingProbes>
   <ColonyDoctor_SettingProbesDesc>Ask modded work givers why they can't do a bill. Always off while the Multiplayer mod is active.</ColonyDoctor_SettingProbesDesc>
 

@@ -13,6 +13,7 @@
     </ItemGroup>
     <RemoveDir Directories="$(ModTarget)" />
     <Copy SourceFiles="@(ModFiles)" DestinationFiles="@(ModFiles->'$(ModTarget)/%(Folder)/%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="$(ModRoot)LICENSE" DestinationFolder="$(ModTarget)" Condition="Exists('$(ModRoot)LICENSE')" />
     <Message Importance="high" Text="Deployed mod to $(ModTarget)" />
   </Target>
 </Project>

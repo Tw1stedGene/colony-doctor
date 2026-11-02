@@ -9,3 +9,4 @@ Directory.Build.props.user
 .idea/
 openspec/
 docs/
+TestResult.xml
