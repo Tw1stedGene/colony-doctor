@@ -107,7 +107,7 @@ namespace ColonyDoctor.Diagnosis
             if (TryBenchProblem(bench, out var d)) return d;
             if (TryNoEligibleWorker(bill, bench, workGiver, out d)) return d;
             if (TryMaterialsMissing(bill, bench, out d)) return d;
-            return Waiting(bill, bench);
+            return Waiting(bill, bench, workGiver);
         }
 
         // ---- Working ----------------------------------------------------------------------------------------------
@@ -439,7 +439,7 @@ namespace ColonyDoctor.Diagnosis
 
         // ---- Waiting for a worker ---------------------------------------------------------------------------------
 
-        private Core.Diagnosis Waiting(Bill bill, Thing bench)
+        private Core.Diagnosis Waiting(Bill bill, Thing bench, WorkGiverDef workGiver)
         {
             for (int i = 0; i < candidates.Count; i++)
             {
@@ -452,10 +452,8 @@ namespace ColonyDoctor.Diagnosis
                     return busy;
                 }
             }
-            var d = Core.Diagnosis.Of(Reason.WaitingForWorker);
-            d.ValueA = eligible.Count;
-            d.SubjectA = eligible.Count > 0 ? eligible[0] : null;
-            return d;
+            // Spec (outcompeted-diagnosis): what were the eligible workers doing instead?
+            return ActivityClassifier.Decide(eligible, workGiver);
         }
     }
 }

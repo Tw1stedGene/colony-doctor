@@ -43,6 +43,7 @@
   <ColonyDoctor_Reason_Unknown>Unknown</ColonyDoctor_Reason_Unknown>
   <ColonyDoctor_Reason_Suspended>Suspended</ColonyDoctor_Reason_Suspended>
   <ColonyDoctor_Reason_Blocked>Blocked</ColonyDoctor_Reason_Blocked>
+  <ColonyDoctor_Reason_Outcompeted>Outcompeted</ColonyDoctor_Reason_Outcompeted>
 
   <!-- Explanations -->
   <ColonyDoctor_Why_Working>Someone was working on this bill.</ColonyDoctor_Why_Working>
@@ -70,6 +71,11 @@
   <ColonyDoctor_Why_NoStockpileAccepts>The bill takes {PRODUCT} to the best stockpile, but no stockpile accepts it, so finished items are dropped next to the bench.</ColonyDoctor_Why_NoStockpileAccepts>
   <ColonyDoctor_Why_SpecificStockpileRejects>The bill takes {PRODUCT} to {STOCKPILE}, which doesn't accept it, so finished items are dropped next to the bench.</ColonyDoctor_Why_SpecificStockpileRejects>
   <ColonyDoctor_Why_BenchBusy>{PAWN} is using the bench for another bill ({BILL}).</ColonyDoctor_Why_BenchBusy>
+  <ColonyDoctor_Why_Outcompeted>{PAWN} could do this, but spent the stall on work that comes before {STALLED} in their work order: {SHARES}.</ColonyDoctor_Why_Outcompeted>
+  <ColonyDoctor_Why_OutcompetedOnce>{PAWN} was busy with {WORK}, which comes before {STALLED} in their work order.</ColonyDoctor_Why_OutcompetedOnce>
+  <ColonyDoctor_ShareOn>{WORK} {PCT}%</ColonyDoctor_ShareOn>
+  <ColonyDoctor_Why_OffDuty>Everyone who could do this was off duty: sleeping, eating, on recreation or outside work hours.</ColonyDoctor_Why_OffDuty>
+  <ColonyDoctor_Why_SameOrLowerRank>Someone could do this, but was idle or on work that ranks the same or lower. The game may be picking closer jobs first.</ColonyDoctor_Why_SameOrLowerRank>
   <ColonyDoctor_Why_Waiting>Materials and a worker are available, but nobody has started this bill. Workers were busy with other jobs.</ColonyDoctor_Why_Waiting>
   <ColonyDoctor_Why_Generic>This bench is handled by a modded work giver. Colony Doctor can't tell why it's stalled yet.</ColonyDoctor_Why_Generic>
 

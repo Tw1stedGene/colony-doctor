@@ -60,6 +60,9 @@ namespace ColonyDoctor.UI
                     return "ColonyDoctor_Why_BenchBusy".Translate(PawnLabel(d.SubjectA).Named("PAWN"),
                         ((d.SubjectB as Bill)?.LabelCap ?? "?").Named("BILL"));
 
+                case Detail.OffDuty: return "ColonyDoctor_Why_OffDuty".Translate();
+                case Detail.SameOrLowerRank: return "ColonyDoctor_Why_SameOrLowerRank".Translate();
+
                 case Detail.FailReasonText: return d.Text ?? "";
                 case Detail.Generic: return "ColonyDoctor_Why_Generic".Translate();
             }

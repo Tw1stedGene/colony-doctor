@@ -16,6 +16,9 @@ namespace ColonyDoctor.Sampling
     {
         public readonly BillHistory History = new BillHistory();
 
+        /// <summary>Spec: Competing work tally, over the current continuous stall.</summary>
+        public readonly CompetingTally Competing = new CompetingTally();
+
         /// <summary>Tick offset within the 250-tick cycle at which this problem is sampled.</summary>
         public int Phase { get; internal set; }
 
@@ -40,5 +43,13 @@ namespace ColonyDoctor.Sampling
 
         /// <summary>Plain-language text for a stored diagnosis. UI only.</summary>
         public abstract string Explain(in Core.Diagnosis d);
+
+        /// <summary>Updates the competing-work tally after a sample (spec: Competing work tally).</summary>
+        internal void NoteSample(in Core.Diagnosis d)
+        {
+            if (d.Reason == Reason.Working) Competing.Reset();
+            else if (d.Reason == Reason.Outcompeted && d.SubjectB is Verse.WorkTypeDef wt)
+                Competing.Add(wt.index, Verse.DefDatabase<Verse.WorkTypeDef>.DefCount, d.SubjectA);
+        }
     }
 }

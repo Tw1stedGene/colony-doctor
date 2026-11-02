@@ -40,7 +40,13 @@ namespace ColonyDoctor.Construction
             public int ClosestLevel;
             public int Required;
             public int Stamp;
+            // Outcompeted decision per construction stage (blueprint, frame needing materials, frame ready), per sample.
+            public readonly List<Pawn> Available = new List<Pawn>();
+            public readonly Core.Diagnosis[] StageWaiting = new Core.Diagnosis[3];
+            public readonly int[] StageStamp = { -1, -1, -1 };
         }
+
+        private static WorkGiverDef[] stageGivers;
 
         private readonly Map map;
         private readonly ReachCache reach;
@@ -220,9 +226,44 @@ namespace ColonyDoctor.Construction
             // Materials (spec: Materials).
             if (TryMaterials(piece, out Core.Diagnosis m)) return m;
 
-            var waiting = Core.Diagnosis.Of(Reason.WaitingForWorker);
-            waiting.SubjectA = available;
-            return waiting;
+            return Waiting(piece, g, available);
+        }
+
+        /// <summary>
+        /// Spec (outcompeted-diagnosis): one Outcompeted decision per construction stage and skill gate per sample, over
+        /// the workers who pass the gate and are available (pieces in the same stage share the same work giver).
+        /// </summary>
+        private Core.Diagnosis Waiting(Thing piece, GateInfo g, Pawn available)
+        {
+            if (stageGivers == null)
+            {
+                stageGivers = new[]
+                {
+                    DefDatabase<WorkGiverDef>.GetNamedSilentFail("ConstructDeliverResourcesToBlueprints"),
+                    DefDatabase<WorkGiverDef>.GetNamedSilentFail("ConstructDeliverResourcesToFrames"),
+                    DefDatabase<WorkGiverDef>.GetNamedSilentFail("ConstructFinishFrames"),
+                };
+            }
+            int stage = piece is Frame f ? (f.IsCompleted() ? 2 : 1) : 0;
+            WorkGiverDef giver = stageGivers[stage];
+            if (giver == null)
+            {
+                var waiting = Core.Diagnosis.Of(Reason.WaitingForWorker, Detail.SameOrLowerRank);
+                waiting.SubjectA = available;
+                return waiting;
+            }
+            if (g.StageStamp[stage] != stamp)
+            {
+                g.Available.Clear();
+                for (int i = 0; i < g.Passing.Count; i++)
+                {
+                    Pawn p = g.Passing[i];
+                    if (!p.Downed && !p.InMentalState && !p.Drafted) g.Available.Add(p);
+                }
+                g.StageWaiting[stage] = ActivityClassifier.Decide(g.Available, giver);
+                g.StageStamp[stage] = stamp;
+            }
+            return g.StageWaiting[stage];
         }
 
         private Core.Diagnosis Blocked(Thing blocker, GateInfo any)

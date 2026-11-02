@@ -2,13 +2,14 @@ namespace ColonyDoctor.Core
 {
     /// <summary>
     /// A construction site's headline reason (spec: Site reason): the reason that applies to the most pieces, ties
-    /// broken by piece precedence (No eligible worker, Blocked, Materials missing, Waiting for a worker, Unknown).
+    /// broken by piece precedence (No eligible worker, Blocked, Materials missing, Outcompeted, Waiting for a worker, Unknown).
     /// </summary>
     public static class SiteReason
     {
         public static readonly Reason[] PiecePrecedence =
         {
-            Reason.NoEligibleWorker, Reason.Blocked, Reason.MaterialsMissing, Reason.WaitingForWorker, Reason.Unknown,
+            Reason.NoEligibleWorker, Reason.Blocked, Reason.MaterialsMissing, Reason.Outcompeted, Reason.WaitingForWorker,
+            Reason.Unknown,
         };
 
         /// <summary>

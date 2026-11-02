@@ -10,9 +10,9 @@ namespace ColonyDoctor.Construction
     /// </summary>
     public static class ConstructionExplanations
     {
-        public static string For(in Core.Diagnosis d)
+        public static string For(in Core.Diagnosis d, Sampling.TrackedProblem site = null)
         {
-            string body = Body(in d);
+            string body = d.Reason == Reason.Outcompeted && site != null ? UI.OutcompetedText.For(site, in d) : Body(in d);
             if (body.NullOrEmpty() || d.PieceTotal <= 1) return body;
             return "ColonyDoctor_PiecesPrefix".Translate(d.PieceCount.Named("COUNT"), d.PieceTotal.Named("TOTAL")) + " " + body;
         }
@@ -22,7 +22,10 @@ namespace ColonyDoctor.Construction
             switch (d.Reason)
             {
                 case Reason.Working: return "ColonyDoctor_Site_Working".Translate();
-                case Reason.WaitingForWorker: return "ColonyDoctor_Site_Waiting".Translate();
+                case Reason.WaitingForWorker:
+                    if (d.Detail == Detail.OffDuty) return "ColonyDoctor_Why_OffDuty".Translate();
+                    if (d.Detail == Detail.SameOrLowerRank) return "ColonyDoctor_Why_SameOrLowerRank".Translate();
+                    return "ColonyDoctor_Site_Waiting".Translate();
                 case Reason.NoEligibleWorker: return Worker(in d);
                 case Reason.Blocked: return Blocked(in d);
                 case Reason.MaterialsMissing: return Materials(in d);

@@ -74,6 +74,7 @@ namespace ColonyDoctor.Dev
                 sb.AppendLine($"    store={bp?.GetStoreMode()?.defName} group={bp?.GetSlotGroup()?.GroupingLabel} " +
                               $"product={t.Bill.recipe.ProducedThingDef?.defName} outputNote={(t.HasOutputNote ? t.OutputNote.Detail.ToString() : "none")}");
                 sb.AppendLine("    " + tracker.Diagnoser.DescribeGates(t));
+                if (t.Competing.Total > 0 || t.History.LastReason == Core.Reason.Outcompeted) sb.AppendLine("    says: " + t.Explain(last) + Tally(t));
             }
             sb.AppendLine($"[Colony Doctor] Construction sites (sampling avg {tracker.AvgTickMs:F3} ms/tick, peak {tracker.PeakTickMs:F2} ms):");
             foreach (Construction.ConstructionSite site in tracker.Sites)
@@ -82,9 +83,17 @@ namespace ColonyDoctor.Dev
                 sb.AppendLine($"  {site.Title} ({site.Location}), {site.PieceCount} pieces: last={site.History.LastReason}/{last.Detail} " +
                               $"pieces={last.PieceCount}/{last.PieceTotal} A={last.SubjectA} B={last.SubjectB} vals={last.ValueA},{last.ValueB} " +
                               $"stall={site.History.ContinuousStallTicks(now)}t lastWorked={site.LastWorkedTick}");
-                sb.AppendLine($"    says: {site.Explain(last)}" + tracker.ConstructionDiagnoser.Describe(site));
+                sb.AppendLine($"    says: {site.Explain(last)}" + Tally(site) + tracker.ConstructionDiagnoser.Describe(site));
             }
             Log.Message(sb.ToString());
+        }
+
+        private static string Tally(Sampling.TrackedProblem p)
+        {
+            if (p.Competing.Total == 0) return "";
+            var parts = DefDatabase<WorkTypeDef>.AllDefsListForReading.Where(w => p.Competing.CountFor(w.index) > 0)
+                .Select(w => $"{w.defName}={p.Competing.CountFor(w.index)}");
+            return $" [tally {p.Competing.Total}: {string.Join(",", parts)}; top={(p.Competing.TopCompetitor as Pawn)?.LabelShort}]";
         }
 
         [DebugAction("Colony Doctor", "Build construction test sites", actionType = DebugActionType.ToolMap,
@@ -171,6 +180,64 @@ namespace ColonyDoctor.Dev
             Log.Message("[Colony Doctor] Construction test sites built:\n  " + string.Join("\n  ", built));
             Messages.Message($"Colony Doctor: built {built.Count} construction test sites. Let ~1 in-game hour pass, then open Bottlenecks → Construction.",
                 MessageTypeDefOf.TaskCompletion, false);
+        }
+
+        // ---- Outcompeted (add-outcompeted) -----------------------------------------------------------------------
+
+        private static readonly Dictionary<Pawn, (int hauling, int crafting)> savedPriorities = new Dictionary<Pawn, (int, int)>();
+        private static bool savedManualPriorities;
+
+        [DebugAction("Colony Doctor", "Build outcompeted test (changes priorities)", actionType = DebugActionType.ToolMap,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void BuildOutcompetedTest()
+        {
+            DebugTools.curTool = null;
+            BuildOutcompetedTest(Find.CurrentMap, Verse.UI.MouseCell());
+        }
+
+        internal static void BuildOutcompetedTest(Map map, IntVec3 origin)
+        {
+            ClearPlot(map, CellRect.FromLimits(origin.x, origin.z, origin.x + Spacing, origin.z + Spacing).ClipInsideMap(map));
+
+            ThingDef chunk = ChunkFor("Granite") ?? ChunkFor("Sandstone");
+            Thing bench = Bench(map, "TableStonecutter", origin + new IntVec3(2, 0, 3), BlocksRecipe(chunk), "O1 Outcompeted by hauling");
+            for (int i = 0; i < 3; i++) GenSpawn.Spawn(ThingMaker.MakeThing(chunk), bench.InteractionCell + new IntVec3(i - 1, 0, -1), map);
+
+            // Competing work: plenty to haul, and Hauling ranked above Crafting for everyone.
+            for (int i = 0; i < 30; i++) SpawnStack(map, ThingDefOf.WoodLog, 25, origin + new IntVec3(i % 10, 0, 7 + i / 10));
+            if (savedPriorities.Count == 0)
+            {
+                savedManualPriorities = Find.PlaySettings.useWorkPriorities;
+                foreach (Pawn p in map.mapPawns.FreeColonistsSpawned)
+                {
+                    if (p.workSettings == null) continue;
+                    savedPriorities[p] = (p.workSettings.GetPriority(WorkTypeDefOf.Hauling), p.workSettings.GetPriority(WorkTypeDefOf.Crafting));
+                }
+            }
+            Find.PlaySettings.useWorkPriorities = true;
+            foreach (Pawn p in map.mapPawns.FreeColonistsSpawned)
+            {
+                if (p.workSettings == null) continue;
+                if (!p.WorkTypeIsDisabled(WorkTypeDefOf.Hauling)) p.workSettings.SetPriority(WorkTypeDefOf.Hauling, 1);
+                if (!p.WorkTypeIsDisabled(WorkTypeDefOf.Crafting)) p.workSettings.SetPriority(WorkTypeDefOf.Crafting, 3);
+            }
+            Log.Message("[Colony Doctor] Outcompeted test built: O1 expect Outcompeted by Hauling while there is wood to haul, " +
+                        "then Working. Use \"Restore work priorities\" afterwards.");
+            Messages.Message("Colony Doctor: outcompeted test built; Hauling 1, Crafting 3 for everyone.", MessageTypeDefOf.TaskCompletion, false);
+        }
+
+        [DebugAction("Colony Doctor", "Restore work priorities", allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void RestorePriorities()
+        {
+            foreach (var kv in savedPriorities)
+            {
+                if (kv.Key.Destroyed || kv.Key.workSettings == null) continue;
+                if (!kv.Key.WorkTypeIsDisabled(WorkTypeDefOf.Hauling)) kv.Key.workSettings.SetPriority(WorkTypeDefOf.Hauling, kv.Value.hauling);
+                if (!kv.Key.WorkTypeIsDisabled(WorkTypeDefOf.Crafting)) kv.Key.workSettings.SetPriority(WorkTypeDefOf.Crafting, kv.Value.crafting);
+            }
+            if (savedPriorities.Count > 0) Find.PlaySettings.useWorkPriorities = savedManualPriorities;
+            Log.Message($"[Colony Doctor] Restored work priorities for {savedPriorities.Count} colonists.");
+            savedPriorities.Clear();
         }
 
         private static IEnumerable<(string name, Func<Map, IntVec3, string> build)> Stations(Map map)

@@ -69,7 +69,7 @@ namespace ColonyDoctor.Construction
 
         public override string Extra => "ColonyDoctor_PiecesLeft".Translate(Pieces.Count.Named("COUNT"));
 
-        public override string Explain(in Core.Diagnosis d) => ConstructionExplanations.For(in d);
+        public override string Explain(in Core.Diagnosis d) => ConstructionExplanations.For(in d, this);
 
         public override void JumpTo()
         {

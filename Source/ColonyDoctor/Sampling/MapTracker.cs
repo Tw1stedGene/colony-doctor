@@ -102,6 +102,7 @@ namespace ColonyDoctor.Sampling
                     ? diagnoser.Diagnose(bill, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
+                t.NoteSample(in d);
             }
             catch (Exception e)
             {

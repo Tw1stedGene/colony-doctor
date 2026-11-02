@@ -11,6 +11,7 @@ namespace ColonyDoctor.Core
         Unknown = 5,
         Suspended = 6,
         Blocked = 7,
+        Outcompeted = 8,
     }
 
     public enum Detail : byte
@@ -47,6 +48,8 @@ namespace ColonyDoctor.Core
 
         // Waiting for a worker
         BenchBusy,
+        OffDuty,
+        SameOrLowerRank,
 
         // Construction: blocked footprint (what clears it)
         BlockedPlant,
@@ -64,7 +67,7 @@ namespace ColonyDoctor.Core
 
     public static class Reasons
     {
-        public const int Count = 8;
+        public const int Count = 9;
         public const byte NoData = 255;
 
         /// <summary>Not working and not suspended: counts towards "stalled".</summary>

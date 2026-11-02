@@ -62,6 +62,7 @@ namespace ColonyDoctor.Sampling
             if (Bench.Spawned) CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(Bench), CameraJumper.MovementMode.Pan);
         }
 
-        public override string Explain(in Core.Diagnosis d) => Explanations.For(in d, Bill, Bench);
+        public override string Explain(in Core.Diagnosis d)
+            => d.Reason == Core.Reason.Outcompeted ? OutcompetedText.For(this, in d) : Explanations.For(in d, Bill, Bench);
     }
 }
