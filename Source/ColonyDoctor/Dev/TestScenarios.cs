@@ -96,7 +96,70 @@ namespace ColonyDoctor.Dev
                               $"open={last.ValueA} unknown={last.ValueB} blocked={last.ValueC} work=[{tp.Location}]");
                 if (last.Reason == Core.Reason.Idle) sb.AppendLine("    says: " + tp.Explain(last));
             }
+            sb.AppendLine("[Colony Doctor] Hauling groups:");
+            foreach (Sampling.TrackedHaulGroup g in tracker.HaulGroups)
+            {
+                var agg = new Core.HistoryAggregate();
+                g.History.Aggregate(now, Core.TimeRange.Day, agg);
+                Core.Diagnosis last = g.History.LastFor(g.History.LastReason);
+                sb.AppendLine($"  {g.Title} ({g.Location}): items={g.Items.Count} waiting={g.WaitingStacks} rotting={g.Rotting} " +
+                              $"now={g.History.LastReason}/{last.Detail} stacks={last.PieceCount}/{last.PieceTotal} stalledDay={agg.StalledPercent}% " +
+                              $"oldest={g.Oldest?.Position}");
+                if (g.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
+            }
             Log.Message(sb.ToString());
+        }
+
+        [DebugAction("Colony Doctor", "Build hauling test", actionType = DebugActionType.ToolMap,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void BuildHaulingTest()
+        {
+            DebugTools.curTool = null;
+            BuildHaulingTest(Find.CurrentMap, Verse.UI.MouseCell());
+        }
+
+        /// <summary>
+        /// Hauling scenarios: H1 steel inside a closed wooden wall ring (Unreachable), H2 raw meat in the open (rotting
+        /// when warm). Items count as waiting after an in-game hour.
+        /// </summary>
+        internal static void BuildHaulingTest(Map map, IntVec3 origin)
+        {
+            var built = new List<string>();
+            IntVec3 ring = origin;
+            for (int dx = -2; dx <= 2; dx++)
+            {
+                for (int dz = -2; dz <= 2; dz++)
+                {
+                    IntVec3 c = ring + new IntVec3(dx, 0, dz);
+                    if (!c.InBounds(map)) continue;
+                    bool edge = Math.Abs(dx) == 2 || Math.Abs(dz) == 2;
+                    if (edge)
+                    {
+                        Thing wall = ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.WoodLog);
+                        wall.SetFaction(Faction.OfPlayer);
+                        GenSpawn.Spawn(wall, c, map, WipeMode.Vanish);
+                    }
+                    else
+                    {
+                        foreach (Thing t in c.GetThingList(map).ToList())
+                        {
+                            if (t.def.category == ThingCategory.Item || t.def.category == ThingCategory.Plant) t.Destroy();
+                        }
+                    }
+                }
+            }
+            Thing steel = ThingMaker.MakeThing(ThingDefOf.Steel);
+            steel.stackCount = 75;
+            GenSpawn.Spawn(steel, ring, map);
+            built.Add($"H1 steel walled off at {ring}");
+
+            IntVec3 meatCell = origin + new IntVec3(6, 0, 0);
+            ThingDef meatDef = DefDatabase<ThingDef>.GetNamedSilentFail("Meat_Muffalo") ?? ThingDefOf.Meat_Human;
+            Thing meat = ThingMaker.MakeThing(meatDef);
+            meat.stackCount = 40;
+            GenPlace.TryPlaceThing(meat, meatCell, map, ThingPlaceMode.Near);
+            built.Add($"H2 {meatDef.label} ×40 near {meatCell}");
+            Log.Message("[Colony Doctor] Hauling test built:\n  " + string.Join("\n  ", built));
         }
 
         private static string Tally(Sampling.TrackedProblem p)

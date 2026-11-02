@@ -7,6 +7,7 @@ namespace ColonyDoctor.Sampling
         Bill = 0,
         Construction = 1,
         Idle = 2,
+        Hauling = 3,
     }
 
     /// <summary>

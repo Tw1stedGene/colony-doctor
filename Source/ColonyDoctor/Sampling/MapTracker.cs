@@ -30,6 +30,10 @@ namespace ColonyDoctor.Sampling
         private readonly List<TrackedProblem> problems = new List<TrackedProblem>(80);
         private readonly List<TrackedPawn> pawns = new List<TrackedPawn>(16);
         private readonly Dictionary<Pawn, TrackedPawn> byPawn = new Dictionary<Pawn, TrackedPawn>(16);
+        private readonly List<TrackedHaulGroup> haulGroups = new List<TrackedHaulGroup>(16);
+        private readonly Dictionary<ThingDef, TrackedHaulGroup> byDef = new Dictionary<ThingDef, TrackedHaulGroup>(16);
+        private Dictionary<Thing, int> spareFirstSeen = new Dictionary<Thing, int>(256);
+        private readonly HaulDiagnoser haulDiagnoser;
         private readonly IdleDiagnoser idleDiagnoser;
         private readonly BillDiagnoser diagnoser;
         private readonly ConstructionDiagnoser constructionDiagnoser;
@@ -63,6 +67,7 @@ namespace ColonyDoctor.Sampling
             constructionDiagnoser = new ConstructionDiagnoser(map, diagnoser.Reach);
             siteDiscovery = new SiteDiscovery(map);
             idleDiagnoser = new IdleDiagnoser(map, this);
+            haulDiagnoser = new HaulDiagnoser(map, diagnoser.Reach);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -104,6 +109,7 @@ namespace ColonyDoctor.Sampling
             {
                 Core.Diagnosis d = t is TrackedBill bill ? diagnoser.Diagnose(bill, tick)
                     : t is TrackedPawn pawn ? idleDiagnoser.Diagnose(pawn, tick)
+                    : t is TrackedHaulGroup haul ? haulDiagnoser.Diagnose(haul, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -132,12 +138,21 @@ namespace ColonyDoctor.Sampling
                 Log.ErrorOnce($"[Colony Doctor] Construction site discovery failed: {e}", 0x0C0D0C75);
             }
             changed |= DiscoverPawns();
+            try
+            {
+                changed |= DiscoverHauling();
+            }
+            catch (Exception e)
+            {
+                Log.ErrorOnce($"[Colony Doctor] Hauling discovery failed: {e}", 0x0C0D0C76);
+            }
             if (!changed) return;
 
             problems.Clear();
             for (int i = 0; i < tracked.Count; i++) problems.Add(tracked[i]);
             for (int i = 0; i < sites.Count; i++) problems.Add(sites[i]);
             for (int i = 0; i < pawns.Count; i++) problems.Add(pawns[i]);
+            for (int i = 0; i < haulGroups.Count; i++) problems.Add(haulGroups[i]);
             Version++;
         }
 
@@ -208,6 +223,56 @@ namespace ColonyDoctor.Sampling
             return changed;
         }
 
+        /// <summary>
+        /// Spec: Hauling groups. Loose items vanilla lists as needing hauling, grouped by def, with the tick each was
+        /// first seen. First-seen ticks are carried into a fresh dictionary each time, which also drops hauled items.
+        /// </summary>
+        private bool DiscoverHauling()
+        {
+            bool changed = false;
+            int tick = Find.TickManager.TicksGame;
+            Dictionary<Thing, int> old = haulDiagnoser.FirstSeen;
+            Dictionary<Thing, int> next = spareFirstSeen;
+            next.Clear();
+            foreach (Thing t in map.listerHaulables.ThingsPotentiallyNeedingHauling())
+            {
+                if (t == null || !t.Spawned || t.IsInAnyStorage() || t.Position.Fogged(map)) continue;
+                if (!byDef.TryGetValue(t.def, out TrackedHaulGroup g))
+                {
+                    g = new TrackedHaulGroup(t.def, map, nextPhase);
+                    nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+                    byDef[t.def] = g;
+                    haulGroups.Add(g);
+                    changed = true;
+                }
+                if (g.SeenInDiscovery != discoveryCount)
+                {
+                    g.SeenInDiscovery = discoveryCount;
+                    g.Items.Clear();
+                }
+                g.Items.Add(t);
+                next[t] = old.TryGetValue(t, out int seen) ? seen : tick;
+            }
+            haulDiagnoser.FirstSeen = next;
+            spareFirstSeen = old;
+            old.Clear();
+
+            for (int i = haulGroups.Count - 1; i >= 0; i--)
+            {
+                TrackedHaulGroup g = haulGroups[i];
+                if (g.SeenInDiscovery != discoveryCount) g.Items.Clear();
+                if (g.Items.Count > 0) g.EmptySinceTick = -1;
+                else if (g.EmptySinceTick < 0) g.EmptySinceTick = tick;
+                if (!g.IsGone) continue;
+                byDef.Remove(g.Def);
+                haulGroups.RemoveAt(i);
+                changed = true;
+            }
+            return changed;
+        }
+
+        internal HaulDiagnoser HaulDiagnoser => haulDiagnoser;
+        public IReadOnlyList<TrackedHaulGroup> HaulGroups => haulGroups;
         internal IdleDiagnoser IdleDiagnoser => idleDiagnoser;
         internal BillDiagnoser Diagnoser => diagnoser;
         internal ConstructionDiagnoser ConstructionDiagnoser => constructionDiagnoser;

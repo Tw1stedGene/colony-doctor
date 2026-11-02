@@ -22,7 +22,7 @@ namespace ColonyDoctor.UI
         private const int RefreshEveryFrames = 60;
 
         private static readonly TimeRange[] Ranges = { TimeRange.Hour, TimeRange.Day, TimeRange.Quadrum };
-        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle };
+        private static readonly ProblemKind[] Categories = { ProblemKind.Bill, ProblemKind.Construction, ProblemKind.Idle, ProblemKind.Hauling };
 
         /// <summary>Selected category; static so it is remembered while the game runs (spec: Construction category).</summary>
         public static ProblemKind Category = ProblemKind.Bill;
@@ -86,11 +86,11 @@ namespace ColonyDoctor.UI
         {
             MapTracker tracker = MapTracker.Existing(shownMap);
             if (tracker == null) return;
-            string s = $"dev: {tracker.Tracked.Count} bills, {tracker.Sites.Count} sites, sampling avg {tracker.AvgTickMs:F3} ms/tick, peak {tracker.PeakTickMs:F2} ms, " +
+            string s = $"dev: {tracker.Tracked.Count} bills, {tracker.Sites.Count} sites, {tracker.HaulGroups.Count} haul groups, sampling avg {tracker.AvgTickMs:F3} ms/tick, peak {tracker.PeakTickMs:F2} ms, " +
                        $"probes {Sampling.ProbeScheduler.LastFrameMs:F2} ms/frame{(Sampling.ProbeScheduler.Enabled ? "" : " (off)")}";
             Text.Font = GameFont.Tiny;
             GUI.color = new Color(1f, 1f, 1f, 0.45f);
-            Widgets.Label(new Rect(inRect.x + 400f, inRect.y + 26f, inRect.width - 760f, 16f), s);
+            Widgets.Label(new Rect(inRect.x + ListWidth + 18f, inRect.yMax - 16f, inRect.width - ListWidth - 18f, 16f), s);
             GUI.color = Color.white;
             Text.Font = GameFont.Small;
         }
@@ -200,7 +200,7 @@ namespace ColonyDoctor.UI
             // spec: Construction category. Bills | Construction.
             for (int i = 0; i < Categories.Length; i++)
             {
-                var cat = new Rect(rect.x + 170f + i * 110f, rect.y + 6f, 110f, 28f);
+                var cat = new Rect(rect.x + 160f + i * 104f, rect.y + 6f, 104f, 28f);
                 if (Segment(cat, ("ColonyDoctor_Category_" + Categories[i]).Translate(), Category == Categories[i]))
                 {
                     Category = Categories[i];
@@ -208,7 +208,7 @@ namespace ColonyDoctor.UI
                 }
             }
 
-            float w = 120f;
+            float w = 104f;
             float x = rect.xMax - w * Ranges.Length;
             for (int i = 0; i < Ranges.Length; i++)
             {
@@ -266,7 +266,9 @@ namespace ColonyDoctor.UI
             Widgets.Label(new Rect(text.x, text.y, text.width, 22f), row.Title.Truncate(text.width));
             GUI.color = ReasonStyle.Muted;
             Text.Font = GameFont.Tiny;
+            if (row.Problem is TrackedHaulGroup hg && hg.Rotting > 0) GUI.color = ReasonStyle.SeverityHigh;
             Widgets.Label(new Rect(text.x, text.y + 20f, text.width, 16f), row.Location.Truncate(text.width));
+            GUI.color = ReasonStyle.Muted;
             var fixState = row.Problem.StateAt(Find.TickManager.TicksGame);
             if (fixState != FixState.None)
             {

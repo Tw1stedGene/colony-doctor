@@ -116,4 +116,76 @@ namespace ColonyDoctor.UI
         protected override string ExplanationKey => "ColonyDoctor_AlertIdleExplanation";
         protected override Thing CulpritOf(TrackedProblem problem) => ((TrackedPawn)problem).Pawn;
     }
+
+    /// <summary>"Hauling stalled (N)" (spec: Hauling alerts).</summary>
+    public class Alert_HaulingStalled : Alert_StalledBase
+    {
+        protected override ProblemKind Kind => ProblemKind.Hauling;
+        protected override string LabelKey => "ColonyDoctor_AlertHaulingLabel";
+        protected override string ExplanationKey => "ColonyDoctor_AlertHaulingExplanation";
+        protected override Thing CulpritOf(TrackedProblem problem) => ((TrackedHaulGroup)problem).Oldest;
+    }
+
+    /// <summary>
+    /// "Food rotting uncollected (N)" (spec: Rotting flag): hauling groups stalled now with stacks that will rot within
+    /// a day. Recomputed at most once per 250 ticks.
+    /// </summary>
+    public class Alert_RottingUncollected : Alert
+    {
+        private readonly List<Thing> culprits = new List<Thing>();
+        private readonly List<string> labels = new List<string>();
+        private int computedAtCycle = -1;
+        private Map computedFor;
+
+        public Alert_RottingUncollected()
+        {
+            defaultPriority = AlertPriority.High;
+        }
+
+        public override AlertReport GetReport()
+        {
+            if (!ColonyDoctorMod.Settings.showStalledBillsAlert) return AlertReport.Inactive;
+            Recompute();
+            return culprits.Count > 0 ? AlertReport.CulpritsAre(culprits) : AlertReport.Inactive;
+        }
+
+        public override string GetLabel() => "ColonyDoctor_AlertRottingLabel".Translate(labels.Count.Named("COUNT"));
+
+        public override TaggedString GetExplanation()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("ColonyDoctor_AlertRottingExplanation".Translate());
+            sb.AppendLine();
+            for (int i = 0; i < labels.Count; i++) sb.AppendLine("  - " + labels[i]);
+            return sb.ToString().TrimEnd();
+        }
+
+        protected override void OnClick()
+        {
+            MainTabWindow_Bottlenecks.Category = ProblemKind.Hauling;
+            MainButtonDef tab = DefDatabase<MainButtonDef>.GetNamedSilentFail("ColonyDoctor_Bottlenecks");
+            if (tab != null) Find.MainTabsRoot.SetCurrentTab(tab, true);
+        }
+
+        private void Recompute()
+        {
+            Map map = Find.CurrentMap;
+            int cycle = Find.TickManager.TicksGame / GameTime.TicksPerSample;
+            if (cycle == computedAtCycle && map == computedFor) return;
+            computedAtCycle = cycle;
+            computedFor = map;
+            culprits.Clear();
+            labels.Clear();
+            MapTracker tracker = MapTracker.Existing(map);
+            if (tracker == null) return;
+            IReadOnlyList<TrackedHaulGroup> groups = tracker.HaulGroups;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                TrackedHaulGroup g = groups[i];
+                if (g.IsGone || g.Rotting == 0 || !g.History.IsCurrentlyStalled) continue;
+                labels.Add(g.Title + " (" + "ColonyDoctor_HaulRotting".Translate(g.Rotting.Named("COUNT")) + ")");
+                if (g.Oldest != null) culprits.Add(g.Oldest);
+            }
+        }
+    }
 }

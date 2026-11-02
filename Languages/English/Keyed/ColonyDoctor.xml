@@ -3,8 +3,8 @@
   <ColonyDoctor_ModName>Colony Doctor</ColonyDoctor_ModName>
 
   <!-- Settings -->
-  <ColonyDoctor_SettingAlert>Show "stalled" and "idle" alerts</ColonyDoctor_SettingAlert>
-  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled", "Construction stalled" and "Colonists idle" alerts on the right when something has been stalled, or someone idle, for most of the last day.</ColonyDoctor_SettingAlertDesc>
+  <ColonyDoctor_SettingAlert>Show Colony Doctor alerts</ColonyDoctor_SettingAlert>
+  <ColonyDoctor_SettingAlertDesc>Show "Bills stalled", "Construction stalled", "Colonists idle", "Hauling stalled" and "Food rotting uncollected" alerts on the right when something has been stalled, or someone idle, for most of the last day.</ColonyDoctor_SettingAlertDesc>
   <ColonyDoctor_SettingProbes>Diagnose modded benches</ColonyDoctor_SettingProbes>
   <ColonyDoctor_SettingProbesDesc>Ask modded work givers why they can't do a bill. Always off while the Multiplayer mod is active.</ColonyDoctor_SettingProbesDesc>
 
@@ -13,6 +13,7 @@
   <ColonyDoctor_Category_Bill>Bills</ColonyDoctor_Category_Bill>
   <ColonyDoctor_Category_Construction>Construction</ColonyDoctor_Category_Construction>
   <ColonyDoctor_Category_Idle>Idle colonists</ColonyDoctor_Category_Idle>
+  <ColonyDoctor_Category_Hauling>Hauling</ColonyDoctor_Category_Hauling>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -46,6 +47,7 @@
   <ColonyDoctor_Reason_Blocked>Blocked</ColonyDoctor_Reason_Blocked>
   <ColonyDoctor_Reason_Outcompeted>Outcompeted</ColonyDoctor_Reason_Outcompeted>
   <ColonyDoctor_Reason_Idle>Idle</ColonyDoctor_Reason_Idle>
+  <ColonyDoctor_Reason_NoStorage>No storage</ColonyDoctor_Reason_NoStorage>
 
   <!-- Explanations -->
   <ColonyDoctor_Why_Working>Someone was working on this bill.</ColonyDoctor_Why_Working>
@@ -174,4 +176,23 @@
   <ColonyDoctor_Idle_Unseen>Colony Doctor can't yet see whether there was {WORK} work for {PAWN}.</ColonyDoctor_Idle_Unseen>
   <ColonyDoctor_AlertIdleLabel>Colonists idle ({COUNT})</ColonyDoctor_AlertIdleLabel>
   <ColonyDoctor_AlertIdleExplanation>These colonists were idle for at least half of their working time in the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertIdleExplanation>
+
+  <!-- Hauling -->
+  <ColonyDoctor_HaulNone>Nothing waiting right now</ColonyDoctor_HaulNone>
+  <ColonyDoctor_HaulOldest>Oldest waiting {AGE}</ColonyDoctor_HaulOldest>
+  <ColonyDoctor_HaulRotting>{COUNT} rotting within a day</ColonyDoctor_HaulRotting>
+  <ColonyDoctor_HaulStacks>{STACKS} stacks lying around, {WAITING} waiting over an hour</ColonyDoctor_HaulStacks>
+  <ColonyDoctor_Haul_Working>Being hauled, or only just dropped.</ColonyDoctor_Haul_Working>
+  <ColonyDoctor_Haul_StacksOf>(Applies to {COUNT} of {TOTAL} waiting stacks.)</ColonyDoctor_Haul_StacksOf>
+  <ColonyDoctor_Haul_NoStorage>No stockpile or shelf accepts {THING}. Allow it in a stockpile's filter, or build storage for it.</ColonyDoctor_Haul_NoStorage>
+  <ColonyDoctor_Haul_StorageFull>Every stockpile or shelf that accepts {THING} is full. Make a stockpile bigger, or allow {THING} somewhere else.</ColonyDoctor_Haul_StorageFull>
+  <ColonyDoctor_Haul_Unreachable>No hauler can reach the {THING}. It may be walled off, behind a locked door or outside allowed areas.</ColonyDoctor_Haul_Unreachable>
+  <ColonyDoctor_Haul_NoColonists>There are no colonists to haul it.</ColonyDoctor_Haul_NoColonists>
+  <ColonyDoctor_Haul_Incapable>Nobody in the colony is capable of hauling.</ColonyDoctor_Haul_Incapable>
+  <ColonyDoctor_Haul_Disabled>Nobody has Hauling enabled in the Work tab.</ColonyDoctor_Haul_Disabled>
+  <ColonyDoctor_Haul_Unavailable>Everyone who hauls is downed, drafted or in a mental state.</ColonyDoctor_Haul_Unavailable>
+  <ColonyDoctor_AlertHaulingLabel>Hauling stalled ({COUNT})</ColonyDoctor_AlertHaulingLabel>
+  <ColonyDoctor_AlertHaulingExplanation>Items of these types have been left lying around for at least half of the last day. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertHaulingExplanation>
+  <ColonyDoctor_AlertRottingLabel>Food rotting uncollected ({COUNT})</ColonyDoctor_AlertRottingLabel>
+  <ColonyDoctor_AlertRottingExplanation>Nobody is hauling these, and some stacks will rot within a day at the current temperature. Click to open the Bottlenecks tab and see why.</ColonyDoctor_AlertRottingExplanation>
 </LanguageData>

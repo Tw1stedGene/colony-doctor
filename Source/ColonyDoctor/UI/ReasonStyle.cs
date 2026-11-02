@@ -15,6 +15,7 @@ namespace ColonyDoctor.UI
         private static readonly Color Outcompeted = Hex(0xd9b44a);
         private static readonly Color BlockedColor = Hex(0xb07a52);
         private static readonly Color IdleColor = Hex(0x6fb7b0);
+        private static readonly Color NoStorageColor = Hex(0xc77fb0);
         public static readonly Color Output = Hex(0x8f99a2);
         private static readonly Color Unknown = Hex(0x9aa1a7);
         private static readonly Color Suspended = new Color(0.3f, 0.3f, 0.3f);
@@ -38,6 +39,7 @@ namespace ColonyDoctor.UI
                 case Reason.Outcompeted: return Outcompeted;
                 case Reason.Blocked: return BlockedColor;
                 case Reason.Idle: return IdleColor;
+                case Reason.NoStorage: return NoStorageColor;
                 case Reason.Suspended: return Suspended;
                 default: return Unknown;
             }

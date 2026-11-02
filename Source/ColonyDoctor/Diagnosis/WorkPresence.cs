@@ -10,6 +10,7 @@ namespace ColonyDoctor.Diagnosis
     /// <summary>
     /// Spec: Work presence. Once per sampling cycle and only read, whether work of each work type exists on the map
     /// and whether it is stalled. Built lazily on the first idle sample of a cycle.
+    /// Hauling comes from the hauling groups (spec: hauling-diagnosis).
     /// </summary>
     public sealed class WorkPresence
     {
@@ -91,7 +92,6 @@ namespace ColonyDoctor.Diagnosis
                 }
             }
 
-            Hauling();
             if (cleaning != null && map.listerFilthInHomeArea.FilthInHomeArea.Count > 0) Set(cleaning, Presence.Open);
             if (mining != null && (map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.Mine)
                                    || map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.MineVein))) Set(mining, Presence.Open);
@@ -138,26 +138,12 @@ namespace ColonyDoctor.Diagnosis
         private static WorkTypeDef WorkTypeOf(TrackedProblem p)
         {
             if (p is ConstructionSite) return WorkTypeDefOf.Construction;
+            if (p is TrackedHaulGroup h) return h.Items.Count > 0 ? WorkTypeDefOf.Hauling : null;
             if (p is TrackedBill b)
             {
                 return b.UsesProbe ? b.Bill.recipe.requiredGiverWorkType : BillWorkGivers.For(b.Bench, b.Bill)?.workType;
             }
             return null;
-        }
-
-        private void Hauling()
-        {
-            int count = 0;
-            foreach (Thing t in map.listerHaulables.ThingsPotentiallyNeedingHauling())
-            {
-                count++;
-                if (!t.IsForbidden(Faction.OfPlayer) && !map.reservationManager.IsReservedByAnyoneOf(t, Faction.OfPlayer))
-                {
-                    Set(WorkTypeDefOf.Hauling, Presence.Open);
-                    return;
-                }
-            }
-            if (count > 0) Set(WorkTypeDefOf.Hauling, Presence.Blocked);
         }
 
         private bool HasResearchBench()

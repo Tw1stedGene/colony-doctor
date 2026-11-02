@@ -27,6 +27,7 @@ namespace ColonyDoctor.Fixes
             {
                 if (problem is TrackedBill tb) return ForBill(tb, d);
                 if (problem is ConstructionSite site) return ForSite(site, d);
+                if (problem is TrackedHaulGroup haul) return ForHaul(haul, d);
             }
             catch (Exception e)
             {
@@ -45,7 +46,7 @@ namespace ColonyDoctor.Fixes
                 if (tb.OutputNote.Detail == Detail.SpecificStockpileRejects)
                 {
                     FixActions.TargetOf(bill.GetSlotGroup(), out var zone, out var building);
-                    if (zone != null || building != null) list.Add(AllowIn(bill, product, zone, building));
+                    if (zone != null || building != null) list.Add(AllowIn(() => !bill.DeletedOrDereferenced, product, zone, building));
                 }
                 else if (tb.OutputNote.Detail == Detail.NoStockpileAccepts)
                 {
@@ -53,7 +54,7 @@ namespace ColonyDoctor.Fixes
                     SlotGroup best = tb.Bench.Map.haulDestinationManager.AllGroupsListForReading
                         .Where(g => g.parent is Zone_Stockpile || g.parent is Building_Storage)
                         .OrderByDescending(g => g.Settings.Priority).FirstOrDefault();
-                    if (best != null) list.Add(AllowIn(bill, product, best.parent as Zone_Stockpile, best.parent as Building_Storage));
+                    if (best != null) list.Add(AllowIn(() => !bill.DeletedOrDereferenced, product, best.parent as Zone_Stockpile, best.parent as Building_Storage));
                 }
             }
             catch (Exception e)
@@ -184,7 +185,7 @@ namespace ColonyDoctor.Fixes
                 },
             };
 
-        private static Fix AllowIn(Bill_Production bill, ThingDef product, Zone_Stockpile zone, Building_Storage building)
+        private static Fix AllowIn(Func<bool> alive, ThingDef product, Zone_Stockpile zone, Building_Storage building)
         {
             StorageSettings settings = zone?.GetStoreSettings() ?? building?.storageGroup?.GetStoreSettings() ?? building?.GetStoreSettings();
             if (settings == null || settings.filter.Allows(product)) return null;
@@ -194,7 +195,7 @@ namespace ColonyDoctor.Fixes
                 Button = "ColonyDoctor_Fix_AllowIn".Translate(where.Named("WHERE")),
                 Change = "ColonyDoctor_FixChange_AllowIn".Translate(product.label.Named("PRODUCT"), where.Named("WHERE")),
                 SideEffect = "ColonyDoctor_FixSide_AllowIn".Translate(product.label.Named("PRODUCT"), where.Named("WHERE")),
-                StillNeeded = () => !bill.DeletedOrDereferenced && !settings.filter.Allows(product),
+                StillNeeded = () => alive() && !settings.filter.Allows(product),
                 Apply = () =>
                 {
                     FixActions.SetFilterAllow(zone, building, product, true);
@@ -235,6 +236,24 @@ namespace ColonyDoctor.Fixes
             }
             if (d.Reason == Reason.Outcompeted) return Priority(site, d);
             return null;
+        }
+
+        // ---- Hauling (spec: Group reason) ----------------------------------------------------------------------------
+
+        private static Fix ForHaul(TrackedHaulGroup g, Core.Diagnosis d)
+        {
+            if (d.Reason == Reason.Outcompeted) return Priority(g, d);
+            if (d.Reason != Reason.NoStorage || d.Detail != Detail.NoStockpileAccepts || g.Items.Count == 0) return null;
+            Map map = g.Items[0].Map;
+            if (map == null) return null;
+            ThingDef def = g.Def;
+            SlotGroup best = map.haulDestinationManager.AllGroupsListForReading
+                .Where(sg => sg.parent is Zone_Stockpile || sg.parent is Building_Storage)
+                .Where(sg => sg.parent is Zone_Stockpile || ((Building_Storage)sg.parent).def.building?.fixedStorageSettings?.filter?.Allows(def) != false)
+                .OrderByDescending(sg => sg.Settings.Priority).ThenByDescending(sg => sg.parent is Zone_Stockpile)
+                .FirstOrDefault();
+            if (best == null) return null;
+            return AllowIn(() => !g.IsGone && g.Items.Count > 0, def, best.parent as Zone_Stockpile, best.parent as Building_Storage);
         }
 
         // ---- Shared ---------------------------------------------------------------------------------------------
