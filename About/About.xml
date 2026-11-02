@@ -38,5 +38,6 @@ Diagnosis is read-only and nothing is written to your save, so you can add or re
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
+    <li>rwmt.Multiplayer</li>
   </loadAfter>
 </ModMetaData>
