@@ -9,6 +9,7 @@ namespace ColonyDoctor.Sampling
         Idle = 2,
         Hauling = 3,
         Growing = 4,
+        Orders = 5,
     }
 
     /// <summary>

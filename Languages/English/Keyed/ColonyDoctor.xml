@@ -15,6 +15,7 @@
   <ColonyDoctor_Category_Idle>Idle colonists</ColonyDoctor_Category_Idle>
   <ColonyDoctor_Category_Hauling>Hauling</ColonyDoctor_Category_Hauling>
   <ColonyDoctor_Category_Growing>Growing</ColonyDoctor_Category_Growing>
+  <ColonyDoctor_Category_Orders>Orders</ColonyDoctor_Category_Orders>
   <ColonyDoctor_Range_Hour>Last hour</ColonyDoctor_Range_Hour>
   <ColonyDoctor_Range_Day>Last day</ColonyDoctor_Range_Day>
   <ColonyDoctor_Range_Quadrum>Last quadrum</ColonyDoctor_Range_Quadrum>
@@ -207,4 +208,24 @@
   <ColonyDoctor_Grow_Incapable>Nobody in the colony is capable of growing.</ColonyDoctor_Grow_Incapable>
   <ColonyDoctor_Grow_Disabled>Nobody has Growing enabled in the Work tab.</ColonyDoctor_Grow_Disabled>
   <ColonyDoctor_Grow_Unavailable>Everyone who grows is downed, drafted or in a mental state.</ColonyDoctor_Grow_Unavailable>
+
+  <!-- Orders -->
+  <ColonyDoctor_Order_Mine>Mine</ColonyDoctor_Order_Mine>
+  <ColonyDoctor_Order_CutPlant>Cut plants</ColonyDoctor_Order_CutPlant>
+  <ColonyDoctor_Order_HarvestPlant>Harvest plants</ColonyDoctor_Order_HarvestPlant>
+  <ColonyDoctor_Order_Deconstruct>Deconstruct</ColonyDoctor_Order_Deconstruct>
+  <ColonyDoctor_Order_Uninstall>Uninstall</ColonyDoctor_Order_Uninstall>
+  <ColonyDoctor_Order_SmoothFloor>Smooth floor</ColonyDoctor_Order_SmoothFloor>
+  <ColonyDoctor_Order_SmoothWall>Smooth wall</ColonyDoctor_Order_SmoothWall>
+  <ColonyDoctor_OrderNone>No orders right now</ColonyDoctor_OrderNone>
+  <ColonyDoctor_OrderFresh>All placed within the last hour</ColonyDoctor_OrderFresh>
+  <ColonyDoctor_OrderCounts>{COUNT} orders, {WAITING} waiting over an hour</ColonyDoctor_OrderCounts>
+  <ColonyDoctor_Order_Working>Someone is on it, or the orders are new.</ColonyDoctor_Order_Working>
+  <ColonyDoctor_Order_Forbidden>Every waiting order is on something forbidden ({COUNT}). Colonists won't touch forbidden things.</ColonyDoctor_Order_Forbidden>
+  <ColonyDoctor_Order_Unreachable>No available worker can reach any of the waiting orders.</ColonyDoctor_Order_Unreachable>
+  <ColonyDoctor_Order_Incapable>Nobody in the colony is capable of {WORK}.</ColonyDoctor_Order_Incapable>
+  <ColonyDoctor_Order_Disabled>Nobody has {WORK} enabled in the Work tab.</ColonyDoctor_Order_Disabled>
+  <ColonyDoctor_Order_Unavailable>Everyone who does {WORK} is downed, drafted or in a mental state.</ColonyDoctor_Order_Unavailable>
+  <ColonyDoctor_Fix_UnforbidTargets>Unforbid targets</ColonyDoctor_Fix_UnforbidTargets>
+  <ColonyDoctor_FixChange_UnforbidTargets>Unforbid {COUNT} forbidden target(s) of {ORDERS}</ColonyDoctor_FixChange_UnforbidTargets>
 </LanguageData>

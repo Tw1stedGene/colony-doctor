@@ -36,6 +36,11 @@ namespace ColonyDoctor.Sampling
         private readonly HaulDiagnoser haulDiagnoser;
         private readonly WorkerPool workerPool;
         private readonly GrowDiagnoser growDiagnoser;
+        private readonly OrderDiagnoser orderDiagnoser;
+        private readonly List<TrackedOrderGroup> orderGroups = new List<TrackedOrderGroup>(8);
+        private readonly Dictionary<DesignationDef, TrackedOrderGroup> byOrderKind = new Dictionary<DesignationDef, TrackedOrderGroup>(8);
+        private Dictionary<Designation, int> spareOrderSeen = new Dictionary<Designation, int>(256);
+        private static Dictionary<DesignationDef, (DesignationDef kind, WorkGiverDef giver)> orderKinds;
         private readonly List<TrackedGrower> growers = new List<TrackedGrower>(8);
         private readonly Dictionary<IPlantToGrowSettable, TrackedGrower> byGrower = new Dictionary<IPlantToGrowSettable, TrackedGrower>(8);
         private readonly IdleDiagnoser idleDiagnoser;
@@ -74,6 +79,7 @@ namespace ColonyDoctor.Sampling
             haulDiagnoser = new HaulDiagnoser(map, diagnoser.Reach);
             workerPool = new WorkerPool(map);
             growDiagnoser = new GrowDiagnoser(map, workerPool);
+            orderDiagnoser = new OrderDiagnoser(map, workerPool);
         }
 
         public static MapTracker For(Map map) => map == null ? null : Trackers.GetValue(map, m => new MapTracker(m));
@@ -117,6 +123,7 @@ namespace ColonyDoctor.Sampling
                     : t is TrackedPawn pawn ? idleDiagnoser.Diagnose(pawn, tick)
                     : t is TrackedHaulGroup haul ? haulDiagnoser.Diagnose(haul, tick)
                     : t is TrackedGrower grower ? growDiagnoser.Diagnose(grower, tick)
+                    : t is TrackedOrderGroup order ? orderDiagnoser.Diagnose(order, tick)
                     : constructionDiagnoser.Diagnose((ConstructionSite)t, tick);
                 t.History.Record(tick, d);
                 t.NoteSample(tick, in d);
@@ -154,6 +161,14 @@ namespace ColonyDoctor.Sampling
                 Log.ErrorOnce($"[Colony Doctor] Hauling discovery failed: {e}", 0x0C0D0C76);
             }
             changed |= DiscoverGrowers();
+            try
+            {
+                changed |= DiscoverOrders();
+            }
+            catch (Exception e)
+            {
+                Log.ErrorOnce($"[Colony Doctor] Orders discovery failed: {e}", 0x0C0D0C77);
+            }
             if (!changed) return;
 
             problems.Clear();
@@ -162,6 +177,7 @@ namespace ColonyDoctor.Sampling
             for (int i = 0; i < pawns.Count; i++) problems.Add(pawns[i]);
             for (int i = 0; i < haulGroups.Count; i++) problems.Add(haulGroups[i]);
             for (int i = 0; i < growers.Count; i++) problems.Add(growers[i]);
+            for (int i = 0; i < orderGroups.Count; i++) problems.Add(orderGroups[i]);
             Version++;
         }
 
@@ -320,6 +336,77 @@ namespace ColonyDoctor.Sampling
             return added;
         }
 
+        private static void ResolveOrderKinds()
+        {
+            orderKinds = new Dictionary<DesignationDef, (DesignationDef, WorkGiverDef)>();
+            void Add(string designation, string group, string giver)
+            {
+                DesignationDef d = DefDatabase<DesignationDef>.GetNamedSilentFail(designation);
+                DesignationDef g = DefDatabase<DesignationDef>.GetNamedSilentFail(group);
+                WorkGiverDef w = DefDatabase<WorkGiverDef>.GetNamedSilentFail(giver);
+                if (d != null && g != null && w?.workType != null) orderKinds[d] = (g, w);
+            }
+            Add("Mine", "Mine", "Mine");
+            Add("MineVein", "Mine", "Mine");
+            Add("CutPlant", "CutPlant", "PlantsCut");
+            Add("HarvestPlant", "HarvestPlant", "PlantsCut");
+            Add("Deconstruct", "Deconstruct", "Deconstruct");
+            Add("Uninstall", "Uninstall", "Uninstall");
+            Add("SmoothFloor", "SmoothFloor", "ConstructSmoothFloors");
+            Add("SmoothWall", "SmoothWall", "ConstructSmoothWalls");
+        }
+
+        /// <summary>Spec: Order groups. Designations grouped by order type, with first-seen ticks.</summary>
+        private bool DiscoverOrders()
+        {
+            if (orderKinds == null) ResolveOrderKinds();
+            bool changed = false;
+            int tick = Find.TickManager.TicksGame;
+            Dictionary<Designation, int> old = orderDiagnoser.FirstSeen;
+            Dictionary<Designation, int> next = spareOrderSeen;
+            next.Clear();
+            List<Designation> all = map.designationManager.AllDesignations;
+            for (int i = 0; i < all.Count; i++)
+            {
+                Designation d = all[i];
+                if (!orderKinds.TryGetValue(d.def, out var kind)) continue;
+                IntVec3 c = TrackedOrderGroup.CellOf(d);
+                if (!c.InBounds(map) || c.Fogged(map)) continue;
+                if (!byOrderKind.TryGetValue(kind.kind, out TrackedOrderGroup g))
+                {
+                    g = new TrackedOrderGroup(kind.kind, kind.giver, map, nextPhase);
+                    nextPhase = (nextPhase + 1) % GameTime.TicksPerSample;
+                    byOrderKind[kind.kind] = g;
+                    orderGroups.Add(g);
+                    changed = true;
+                }
+                if (g.SeenInDiscovery != discoveryCount)
+                {
+                    g.SeenInDiscovery = discoveryCount;
+                    g.Items.Clear();
+                }
+                g.Items.Add(d);
+                next[d] = old.TryGetValue(d, out int seen) ? seen : tick;
+            }
+            orderDiagnoser.FirstSeen = next;
+            spareOrderSeen = old;
+            old.Clear();
+
+            for (int i = orderGroups.Count - 1; i >= 0; i--)
+            {
+                TrackedOrderGroup g = orderGroups[i];
+                if (g.SeenInDiscovery != discoveryCount) g.Items.Clear();
+                if (g.Items.Count > 0) g.EmptySinceTick = -1;
+                else if (g.EmptySinceTick < 0) g.EmptySinceTick = tick;
+                if (!g.IsGone) continue;
+                byOrderKind.Remove(g.Kind0);
+                orderGroups.RemoveAt(i);
+                changed = true;
+            }
+            return changed;
+        }
+
+        public IReadOnlyList<TrackedOrderGroup> OrderGroups => orderGroups;
         internal WorkerPool WorkerPool => workerPool;
         public IReadOnlyList<TrackedGrower> Growers => growers;
         internal HaulDiagnoser HaulDiagnoser => haulDiagnoser;

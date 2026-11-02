@@ -29,6 +29,7 @@ namespace ColonyDoctor.Fixes
                 if (problem is ConstructionSite site) return ForSite(site, d);
                 if (problem is TrackedHaulGroup haul) return ForHaul(haul, d);
                 if (problem is TrackedGrower && d.Reason == Reason.Outcompeted) return Priority(problem, d);
+                if (problem is TrackedOrderGroup order) return ForOrders(order, d);
             }
             catch (Exception e)
             {
@@ -255,6 +256,30 @@ namespace ColonyDoctor.Fixes
                 .FirstOrDefault();
             if (best == null) return null;
             return AllowIn(() => !g.IsGone && g.Items.Count > 0, def, best.parent as Zone_Stockpile, best.parent as Building_Storage);
+        }
+
+        // ---- Orders (spec: Order group reason) -----------------------------------------------------------------------
+
+        private static Fix ForOrders(TrackedOrderGroup g, Core.Diagnosis d)
+        {
+            if (d.Reason == Reason.Outcompeted) return Priority(g, d);
+            if (d.Reason != Reason.Blocked || d.Detail != Detail.Forbidden) return null;
+            List<Thing> targets = g.Items.Where(x => x.target.HasThing && x.target.Thing.Spawned && x.target.Thing.IsForbidden(Faction.OfPlayer))
+                .Select(x => x.target.Thing).Distinct().ToList();
+            if (targets.Count == 0) return null;
+            return new Fix
+            {
+                Button = "ColonyDoctor_Fix_UnforbidTargets".Translate(),
+                Change = "ColonyDoctor_FixChange_UnforbidTargets".Translate(targets.Count.Named("COUNT"), g.Title.Named("ORDERS")),
+                SideEffect = "ColonyDoctor_FixSide_Unforbid".Translate(),
+                StillNeeded = () => !g.IsGone && targets.Any(t => t.Spawned && t.IsForbidden(Faction.OfPlayer)) && StillDetail(g, Reason.Blocked, Detail.Forbidden),
+                Apply = () =>
+                {
+                    List<Thing> changed = targets.Where(t => t.Spawned && t.IsForbidden(Faction.OfPlayer)).ToList();
+                    FixActions.SetForbidden(changed, false);
+                    return () => FixActions.SetForbidden(changed, true);
+                },
+            };
         }
 
         // ---- Shared ---------------------------------------------------------------------------------------------

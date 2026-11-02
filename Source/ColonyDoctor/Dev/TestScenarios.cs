@@ -118,6 +118,16 @@ namespace ColonyDoctor.Dev
                 if (g.History.LastReason != Core.Reason.Working && g.History.LastReason != Core.Reason.Suspended)
                     sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
             }
+            sb.AppendLine("[Colony Doctor] Order groups:");
+            foreach (Sampling.TrackedOrderGroup g in tracker.OrderGroups)
+            {
+                var agg = new Core.HistoryAggregate();
+                g.History.Aggregate(now, Core.TimeRange.Day, agg);
+                Core.Diagnosis last = g.History.LastFor(g.History.LastReason);
+                sb.AppendLine($"  {g.Title} ({g.Location}): waiting={g.WaitingCount} now={g.History.LastReason}/{last.Detail} " +
+                              $"stalledDay={agg.StalledPercent}% lastWorked={g.LastWorkedTick} giver={g.Giver.defName}");
+                if (g.History.LastReason != Core.Reason.Working) sb.AppendLine("    says: " + g.Explain(last) + Tally(g));
+            }
             Log.Message(sb.ToString());
         }
 

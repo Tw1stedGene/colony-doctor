@@ -94,10 +94,6 @@ namespace ColonyDoctor.Diagnosis
             }
 
             if (cleaning != null && map.listerFilthInHomeArea.FilthInHomeArea.Count > 0) Set(cleaning, Presence.Open);
-            if (mining != null && (map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.Mine)
-                                   || map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.MineVein))) Set(mining, Presence.Open);
-            if (plantCutting != null && (map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.CutPlant)
-                                         || map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.HarvestPlant))) Set(plantCutting, Presence.Open);
             if (hunting != null && map.designationManager.AnySpawnedDesignationOfDef(DesignationDefOf.Hunt)) Set(hunting, Presence.Open);
             if (research != null && Find.ResearchManager.GetProject() != null && HasResearchBench()) Set(research, Presence.Open);
             if (doctor != null && AnyNeedsTending()) Set(doctor, Presence.Open);
@@ -140,6 +136,7 @@ namespace ColonyDoctor.Diagnosis
         {
             if (p is ConstructionSite) return WorkTypeDefOf.Construction;
             if (p is TrackedHaulGroup h) return h.Items.Count > 0 ? WorkTypeDefOf.Hauling : null;
+            if (p is TrackedOrderGroup o) return o.Items.Count > 0 ? o.Giver.workType : null;
             if (p is TrackedGrower g) return g.ToSow + g.ToHarvest > 0 ? WorkTypeDefOf.Growing : null;
             if (p is TrackedBill b)
             {
