@@ -428,6 +428,17 @@ namespace ColonyDoctor.Dev
 
             // Competing work: plenty to haul, and Hauling ranked above Crafting for everyone.
             for (int i = 0; i < 30; i++) SpawnStack(map, ThingDefOf.WoodLog, 25, origin + new IntVec3(i % 10, 0, 7 + i / 10));
+            // A stockpile that takes the wood, a walk away, so there is hauling to do even on saves without one.
+            var pile = new Zone_Stockpile(StorageSettingsPreset.DefaultStockpile, map.zoneManager);
+            map.zoneManager.RegisterZone(pile);
+            pile.settings.filter.SetAllow(ThingDefOf.WoodLog, true);
+            pile.settings.Priority = StoragePriority.Critical;
+            foreach (IntVec3 c in CellRect.CenteredOn(origin + new IntVec3(5, 0, -22), 3).ClipInsideMap(map))
+            {
+                if (c.Standable(map) && map.zoneManager.ZoneAt(c) == null && !c.Fogged(map)) pile.AddCell(c);
+            }
+            if (pile.Cells.Count == 0) pile.Delete();
+            else pile.label = "O1 wood pile";
             if (savedPriorities.Count == 0)
             {
                 savedManualPriorities = Find.PlaySettings.useWorkPriorities;
